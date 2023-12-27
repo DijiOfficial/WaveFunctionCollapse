@@ -1,6 +1,13 @@
 # The Wave Function Collapse
 
+### The Project
 (quick presentation of the wave collapse function I made)
+
+### Motivations
+(reasons for this project)
+
+### Final result
+(quick gif of the project in effect)
 
 ## Introduction to Algorithms in Games and their Application
 
