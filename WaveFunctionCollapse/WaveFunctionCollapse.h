@@ -52,6 +52,7 @@ public:
 	void CallAction(Caller* callerPtr) override;
 	bool CollapseFunctionAlgorithm();
 	std::vector<Tiles*> GetLowestEntropyTiles();
+	int GetLowestEntropy() const;
 
 private:
 	// -------------------------
@@ -64,5 +65,6 @@ private:
 	std::vector<Tiles*> m_TilesPtrVec{};
 	Bitmap* m_BmpTileTexturePtr{};
 
-
+	bool m_WFCIsOver{ false };
+	bool m_WFCIsRunning{ true };
 };

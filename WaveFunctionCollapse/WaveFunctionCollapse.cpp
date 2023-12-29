@@ -12,6 +12,8 @@
 #include "EnumClasses.h"
 #include <stack>
 #include <vld.h>
+#include <string>
+
 //-----------------------------------------------------------------
 // WaveFunctionCollapse methods																				
 //-----------------------------------------------------------------
@@ -37,18 +39,10 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
 	// Set the optional values
 	GAME_ENGINE->SetWidth(WORLD_WIDTH * TILE_SIZE);
 	GAME_ENGINE->SetHeight(WORLD_HEIGHT * TILE_SIZE);
-    GAME_ENGINE->SetFrameRate(50);
+    GAME_ENGINE->SetFrameRate(144);
 	
 	// Load the bitmap
-	try
-	{
-		m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles.bmp"));
-	}
-	catch (const BitmapNotLoadedException& ex)
-	{
-		GAME_ENGINE->MessageBox(_T("Could not load Background BitMap"));
-		GAME_ENGINE->Quit();
-	}
+	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles2.bmp"));
 
 	for (int i = 0; i < WORLD_WIDTH * WORLD_HEIGHT; ++i)
 		m_TilesPtrVec.push_back(new Tiles());
@@ -63,10 +57,11 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
 
 void WaveFunctionCollapse::Start()
 {
+	// Assign to every tile its neighbors (not necessary but it makes the code clearer in the algorithm)
 	for (int it = 0; it < m_TilesPtrVec.size(); ++it)
 	{
-		const int posY = static_cast<int>(it / WORLD_WIDTH) * TILE_SIZE;
-		const int posX = it % WORLD_WIDTH * TILE_SIZE;
+		const int posY = static_cast<int>(it / WORLD_WIDTH);
+		const int posX = it % WORLD_WIDTH;
 
 		if (posY > 0)
 			m_TilesPtrVec[it]->AddNeighbor(Direction::NORTH, m_TilesPtrVec[it - WORLD_WIDTH]);
@@ -76,9 +71,7 @@ void WaveFunctionCollapse::Start()
 			m_TilesPtrVec[it]->AddNeighbor(Direction::SOUTH, m_TilesPtrVec[it + WORLD_WIDTH]);
 		if (posX > 0)
 			m_TilesPtrVec[it]->AddNeighbor(Direction::WEST, m_TilesPtrVec[it - 1]);
-
 	}
-	//CollapseFunctionAlgorithm();
 }
 
 void WaveFunctionCollapse::End()
@@ -94,6 +87,7 @@ void WaveFunctionCollapse::End()
 
 void WaveFunctionCollapse::Paint(RECT rect)
 {
+	const int lowestEntropy = GetLowestEntropy();
 	for (int it = 0; it < m_TilesPtrVec.size(); ++it)
 	{
 		//std::shared_ptr<Tiles> currentTile = std::make_shared<Tiles>(m_TilesPtrVec[it]); //cant make it work
@@ -103,14 +97,43 @@ void WaveFunctionCollapse::Paint(RECT rect)
 		const LONG srcX = static_cast<LONG>(m_TilesPtrVec[it]->GetTileName());
 		const RECT srcRect = { srcX * TILE_SIZE, 0, (srcX + 1) * TILE_SIZE, TILE_SIZE };
 
-		GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, srcRect);
+		const int entropy = m_TilesPtrVec[it]->GetEntropy();
+		const TileName tileName = m_TilesPtrVec[it]->GetTileName();
+
+		// If tile is not chosen yet, paint it black and give it a number representing its entropy
+		if (entropy > 0)
+		{
+			GAME_ENGINE->SetColor(RGB(0,0,0));
+			GAME_ENGINE->FillRect(posX, posY, TILE_SIZE, TILE_SIZE);
+			
+			if (entropy >= static_cast<int>(TileRuleSet.size()) / 3)
+				GAME_ENGINE->SetColor(RGB(128, 128, 128));
+			else
+			{
+				if (entropy == lowestEntropy)
+					GAME_ENGINE->SetColor(RGB(0, 255, 0));
+				else
+					GAME_ENGINE->SetColor(RGB(255, 255, 255));
+			}
+
+			GAME_ENGINE->DrawString(std::to_wstring(entropy), posX, posY, TILE_SIZE, TILE_SIZE);
+		}
+		else // If tile is chosen, paint it with its texture
+		{
+			// If it's a forest tile, paint a grass tile underneath it
+			//if (static_cast<int>(tileName) >= static_cast<int>(TileName::TILE_FORESTN))
+			//{
+			//}
+			//	GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, { 0, 0, TILE_SIZE, TILE_SIZE });
+			GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, srcRect);
+		}
 	}
 }
 
 void WaveFunctionCollapse::Tick()
 {
-	CollapseFunctionAlgorithm();
-	// Insert non-paint code that needs to be executed each tick 
+	if (m_WFCIsRunning and not m_WFCIsOver)
+		m_WFCIsOver = CollapseFunctionAlgorithm();
 }
 
 void WaveFunctionCollapse::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
@@ -223,33 +246,53 @@ std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 	return tileList;
 }
 
+int WaveFunctionCollapse::GetLowestEntropy() const
+{
+	int lowestEntropy = TileRuleSet.size();
+	for (const auto& tile : m_TilesPtrVec)
+	{
+		const int tileEntropy = tile->GetEntropy();
+		if (tileEntropy > 0 and tileEntropy < lowestEntropy)
+			lowestEntropy = tileEntropy;
+	}
+
+	return lowestEntropy;
+}
+
 bool WaveFunctionCollapse::CollapseFunctionAlgorithm()
 {
 	const auto lowestEntropyTilesList = GetLowestEntropyTiles();
 	if (lowestEntropyTilesList.empty())
 		return true;
 
-	Tiles* tileToCollapse = lowestEntropyTilesList[0];
+	// Choose a random available tile to collapse and push it to the stack
+	Tiles* tileToCollapse = lowestEntropyTilesList[rand() % static_cast<int>(lowestEntropyTilesList.size())];
 	tileToCollapse->Collapse();
 
 	std::stack<Tiles*> stack;
 	stack.push(tileToCollapse);
 
+	// Propagate the constraints to the neighbors (remove all of the neighbor's unavailable tiles based on the previous neighbor)
 	while (not stack.empty())
 	{
 		Tiles* currentTile = stack.top();
 		stack.pop();
 
-		std::vector<TileName> NeighborsAvailableTilesVec{ currentTile->GetAvailableTiles() };
+		// Get the available tiles and directions of the current tile
+		std::vector<TileName> AvailableTilesForNeighborVec{ currentTile->GetAvailableTiles() };
 		std::vector<Direction> directionsVec{ currentTile->GetDirections() };
 	
+		// Loop through all the nieghbors of the current tile
 		for (const auto& direction : directionsVec)
 		{
 			Tiles* neighbor = currentTile->GetNeighbor(direction);
 			if (neighbor->GetEntropy() == 0)
 				continue;
 
-			if (neighbor->Constrain(NeighborsAvailableTilesVec, direction))
+			// If the neighbor was constrained*, push it to the stack. (If the neighbor had some tiles removed from his available tiles choices)
+			// then add that neighbor to the stack so his neighbors can be checked
+			// *see Constrain() implementation for more details
+			if (neighbor->Constrain(AvailableTilesForNeighborVec, direction))
 				stack.push(neighbor);
 		}
 	}

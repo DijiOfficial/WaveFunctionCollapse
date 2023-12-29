@@ -1399,7 +1399,7 @@ Bitmap::Bitmap(const tstring& nameRef, bool createAlphaChannel) : m_hBitmap(0), 
 
 	if (m_IsTarga || createAlphaChannel) LoadBitInfo();
 
-	if (!Exists()) throw BitmapNotLoadedException();
+	//if (!Exists()) throw BitmapNotLoadedException();
 }
 
 Bitmap::Bitmap(int IDBitmap, const tstring& typeRef, bool createAlphaChannel): m_TransparencyKey(-1), m_Opacity(100), m_Exists(false)

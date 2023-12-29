@@ -484,7 +484,7 @@ private:
 //-----------------------------------------------------------------
 // Bitmap Class
 //-----------------------------------------------------------------
-class BitmapNotLoadedException {};
+//class BitmapNotLoadedException {};
 
 class Bitmap final
 {
