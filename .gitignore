@@ -1,6 +1,6 @@
-.rar
-.zip
-.vs
+*.rar
+*.zip
+*.vs
 /.vs
 /vs
 x64
