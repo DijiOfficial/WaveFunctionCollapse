@@ -28,7 +28,6 @@ WaveFunctionCollapse::~WaveFunctionCollapse()
 	// nothing to destroy
 }
 
-
 void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)			
 {
 	// Set the required values
@@ -37,15 +36,13 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
 	GAME_ENGINE->RunGameLoop(true);		
 	
 	// Set the optional values
-	GAME_ENGINE->SetWidth(WORLD_WIDTH * TILE_SIZE);
-	GAME_ENGINE->SetHeight(WORLD_HEIGHT * TILE_SIZE);
+	GAME_ENGINE->SetWidth(m_WorldWidth * TILE_SIZE);
+	GAME_ENGINE->SetHeight(m_WorldHeight * TILE_SIZE);
     GAME_ENGINE->SetFrameRate(144);
 	
 	// Load the bitmap
-	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles2.bmp"));
-
-	for (int i = 0; i < WORLD_WIDTH * WORLD_HEIGHT; ++i)
-		m_TilesPtrVec.push_back(new Tiles());
+	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles4.bmp"));
+	//m_BmpTileTexturePtr->SetTransparencyColor(RGB(255, 0, 255));
 
 	// Set the keys that the game needs to listen to
 	//tstringstream buffer;
@@ -55,23 +52,29 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
 	//GAME_ENGINE->SetKeyList(buffer.str());
 }
 
-void WaveFunctionCollapse::Start()
+void WaveFunctionCollapse::Start(bool reset)
 {
+	for (int i = 0; i < m_WorldWidth * m_WorldHeight; ++i)
+		m_TilesPtrVec.push_back(new Tiles());
+
 	// Assign to every tile its neighbors (not necessary but it makes the code clearer in the algorithm)
 	for (int it = 0; it < m_TilesPtrVec.size(); ++it)
 	{
-		const int posY = static_cast<int>(it / WORLD_WIDTH);
-		const int posX = it % WORLD_WIDTH;
+		const int posY = static_cast<int>(it / m_WorldWidth);
+		const int posX = it % m_WorldWidth;
 
 		if (posY > 0)
-			m_TilesPtrVec[it]->AddNeighbor(Direction::NORTH, m_TilesPtrVec[it - WORLD_WIDTH]);
-		if (posX < WORLD_WIDTH - 1)
+			m_TilesPtrVec[it]->AddNeighbor(Direction::NORTH, m_TilesPtrVec[it - m_WorldWidth]);
+		if (posX < m_WorldWidth - 1)
 			m_TilesPtrVec[it]->AddNeighbor(Direction::EAST, m_TilesPtrVec[it + 1]);
-		if (posY < WORLD_HEIGHT - 1)
-			m_TilesPtrVec[it]->AddNeighbor(Direction::SOUTH, m_TilesPtrVec[it + WORLD_WIDTH]);
+		if (posY < m_WorldHeight - 1)
+			m_TilesPtrVec[it]->AddNeighbor(Direction::SOUTH, m_TilesPtrVec[it + m_WorldWidth]);
 		if (posX > 0)
 			m_TilesPtrVec[it]->AddNeighbor(Direction::WEST, m_TilesPtrVec[it - 1]);
 	}
+
+	if (not reset)
+		CreateUI();
 }
 
 void WaveFunctionCollapse::End()
@@ -83,6 +86,14 @@ void WaveFunctionCollapse::End()
 		delete tile;
 	}
 	m_TilesPtrVec.clear();
+
+	delete m_TxtInputPtr;
+	delete m_BtnAllowTileClickPtr;
+	delete m_BtnClickPtr;
+	delete m_BtnResetPtr;
+	delete m_BtnCompletePtr;
+	delete m_TxtViewWidthPtr;
+	delete m_TxtViewHeightPtr;
 }
 
 void WaveFunctionCollapse::Paint(RECT rect)
@@ -91,8 +102,8 @@ void WaveFunctionCollapse::Paint(RECT rect)
 	for (int it = 0; it < m_TilesPtrVec.size(); ++it)
 	{
 		//std::shared_ptr<Tiles> currentTile = std::make_shared<Tiles>(m_TilesPtrVec[it]); //cant make it work
-		const int posX = it % WORLD_WIDTH * TILE_SIZE;
-		const int posY = static_cast<int>(it / WORLD_WIDTH) * TILE_SIZE;
+		const int posX = it % m_WorldWidth * TILE_SIZE;
+		const int posY = static_cast<int>(it / m_WorldWidth) * TILE_SIZE;
 
 		const LONG srcX = static_cast<LONG>(m_TilesPtrVec[it]->GetTileName());
 		const RECT srcRect = { srcX * TILE_SIZE, 0, (srcX + 1) * TILE_SIZE, TILE_SIZE };
@@ -121,13 +132,17 @@ void WaveFunctionCollapse::Paint(RECT rect)
 		else // If tile is chosen, paint it with its texture
 		{
 			// If it's a forest tile, paint a grass tile underneath it
-			//if (static_cast<int>(tileName) >= static_cast<int>(TileName::TILE_FORESTN))
-			//{
-			//}
-			//	GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, { 0, 0, TILE_SIZE, TILE_SIZE });
+			if (static_cast<int>(tileName) >= static_cast<int>(TileName::TILE_FORESTN))
+				GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, { 0, 0, TILE_SIZE, TILE_SIZE });
+	
 			GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, srcRect);
 		}
 	}
+
+	std::wstring buffer{ L"Toggle Generate On Click" };
+	const RECT stringRect = m_BtnAllowTileClickPtr->GetRect();
+	GAME_ENGINE->SetColor(RGB(255,255,255));
+	GAME_ENGINE->DrawString(buffer, stringRect.left - 180, stringRect.bottom - m_UI.buttonHeight / 1.5f, 300, 300);
 }
 
 void WaveFunctionCollapse::Tick()
@@ -138,20 +153,10 @@ void WaveFunctionCollapse::Tick()
 
 void WaveFunctionCollapse::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
 {	
-	// Insert the code that needs to be executed when the game registers a mouse button action
-
-	/* Example:
-	if (isLeft == true && isDown == true) // is it a left mouse click?
-	{	
-		if ( x > 261 && x < 261 + 117 ) // check if click lies within x coordinates of choice
-		{
-			if ( y > 182 && y < 182 + 33 ) // check if click also lies within y coordinates of choice
-			{
-				GAME_ENGINE->MessageBox(_T("Clicked."));
-			}
-		}
+	if (isLeft and not isDown and m_AllowTileClick)
+	{
+		CollapseFunctionAlgorithm(x, y, true);
 	}
-	*/
 }
 void WaveFunctionCollapse::MouseWheelAction(int x, int y, int distance, WPARAM wParam)
 {	
@@ -213,7 +218,31 @@ void WaveFunctionCollapse::KeyPressed(TCHAR cKey)
 }
 void WaveFunctionCollapse::CallAction(Caller* callerPtr)
 {
-	// Insert the code that needs to be executed when a Caller has to perform an action
+	if (callerPtr == m_BtnClickPtr)
+	{
+		if (m_WFCIsRunning)
+			m_BtnClickPtr->SetText(_T("Start"));
+		else
+			m_BtnClickPtr->SetText(_T("Stop"));
+
+		if (not m_WFCIsOver)
+			m_WFCIsRunning = !m_WFCIsRunning;
+	}
+	else if (callerPtr == m_BtnAllowTileClickPtr)
+	{
+		m_AllowTileClick = !m_AllowTileClick;
+		if (m_AllowTileClick)
+			m_BtnAllowTileClickPtr->SetText(_T(""));
+		else
+			m_BtnAllowTileClickPtr->SetText(_T("X"));
+	}
+	else if (callerPtr == m_BtnCompletePtr)
+	{
+		while (not m_WFCIsOver)
+			m_WFCIsOver = CollapseFunctionAlgorithm();
+	}
+	else if (callerPtr == m_BtnResetPtr)
+		Reset();
 }
 
 std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
@@ -259,14 +288,81 @@ int WaveFunctionCollapse::GetLowestEntropy() const
 	return lowestEntropy;
 }
 
-bool WaveFunctionCollapse::CollapseFunctionAlgorithm()
+void WaveFunctionCollapse::CreateUI()
+{
+	m_UI.SetViewWidth(GAME_ENGINE->GetWidth());
+	m_UI.SetViewHeight(GAME_ENGINE->GetHeight());
+
+	m_TxtViewWidthPtr = new TextBox(std::to_wstring(m_WorldWidth));
+	m_TxtViewWidthPtr->SetBounds(m_UI.alignRight + m_UI.padding, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
+	m_TxtViewWidthPtr->AddActionListener(this);
+	m_TxtViewWidthPtr->SetFont(_T("Sans Serif"), true, false, false, 20);
+	m_TxtViewWidthPtr->Show();
+
+	m_TxtViewHeightPtr = new TextBox(std::to_wstring(m_WorldHeight));
+	m_TxtViewHeightPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight - m_UI.padding, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
+	m_TxtViewHeightPtr->AddActionListener(this);
+	m_TxtViewHeightPtr->SetFont(_T("Sans Serif"), true, false, false, 20);
+	m_TxtViewHeightPtr->Show();
+
+	m_BtnClickPtr = new Button(_T("Start"));
+	m_BtnClickPtr->SetBounds(m_UI.alignRight, m_UI.alignTop, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnClickPtr->AddActionListener(this);
+	m_BtnClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnClickPtr->Show();
+
+	m_BtnAllowTileClickPtr = new Button(_T("X"));
+	m_BtnAllowTileClickPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight, m_UI.alignTop - m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
+	m_BtnAllowTileClickPtr->AddActionListener(this);
+	m_BtnAllowTileClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnAllowTileClickPtr->Show(); 
+
+	m_BtnCompletePtr = new Button(_T("Complete"));
+	m_BtnCompletePtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 2 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnCompletePtr->AddActionListener(this);
+	m_BtnCompletePtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnCompletePtr->Show();
+
+	m_BtnResetPtr = new Button(_T("Reset"));
+	m_BtnResetPtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 3 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnResetPtr->AddActionListener(this);
+	m_BtnResetPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnResetPtr->Show();
+}
+
+void WaveFunctionCollapse::Reset()
+{
+	m_WFCIsOver = { false };
+	m_WFCIsRunning = { false };
+	m_AllowTileClick = { false };
+
+	m_BtnClickPtr->SetText(_T("Start"));
+	m_BtnAllowTileClickPtr->SetText(_T("X"));
+
+	for (auto& tile : m_TilesPtrVec)
+	{
+		delete tile;
+	}
+	m_TilesPtrVec.clear();
+
+	Start(true);
+}
+
+bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicked)
 {
 	const auto lowestEntropyTilesList = GetLowestEntropyTiles();
 	if (lowestEntropyTilesList.empty())
 		return true;
 
+	int index = (y / TILE_SIZE) * m_WorldWidth + (x / TILE_SIZE);
+
 	// Choose a random available tile to collapse and push it to the stack
-	Tiles* tileToCollapse = lowestEntropyTilesList[rand() % static_cast<int>(lowestEntropyTilesList.size())];
+	Tiles* tileToCollapse = nullptr;
+	if (isClicked)
+		tileToCollapse = m_TilesPtrVec[index];
+	else
+		tileToCollapse = lowestEntropyTilesList[rand() % static_cast<int>(lowestEntropyTilesList.size())];
+
 	tileToCollapse->Collapse();
 
 	std::stack<Tiles*> stack;
