@@ -27,8 +27,8 @@ I have always been passionate about Algorithms, Math, Physics and Video Games an
 ## Algorithm
 In the following paragraph the word "tile" and "module" are interchangeable. Tile refers to a 2D Width x Height image and module to a 3D Width x Height x Depth box containing a 3D asset. They don't neceserally need to be square/cube as long as the rule set doesn't allow for overlapping tiles/modules. However for the 2D version of this algorithm you can break down the Width x Height tile to a lower version of itself that is multiple square tiles and completing the rule set with those subset tiles. I will also refer to Tile objects as Tobj not to be confused with tiles. Tobj contain different values including a list of available tiles it can choose from.
 
-To get started with this Algorithm you will need to do an initial set up for it based on the variation you are doing.
-- How does it work?
+To get started with this Algorithm you will need to do an initial set up for it based on the variation you are doing. For the [Project1](#rpoject-1) first start by defining all the tiles you will be using and the subsequent rule set that will link all the tiles to each other or in other words which tile can connect to which tile. Make an array of Tobj containing a list of available tiles and an entropy value, by default entropy will be set to the total amount of tiles. Entropy is simply the amount of available tiles left to choose from after Constriction, more on that later. Finally to get started with the Wave Function Collapse follow this pseudo-code:
+1. Get a list of lowest entropy Tobj
 
 ## Background:
 
