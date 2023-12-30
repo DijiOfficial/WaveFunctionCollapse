@@ -87,6 +87,7 @@ public:
 	bool		GoWindowedMode();		
 	bool		IsFullscreen() const;		
 	void		ShowMousePointer(bool value) const;	
+	void		ResizeWindow();
 
 	LRESULT     HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 	bool		IsKeyDown(int vKey) const;
@@ -246,6 +247,7 @@ public:
 	static const int Timer		= 2;
 	static const int Audio		= 3;
 	static const int Video		= 4;
+	//static const int DropDown	= 5;
 
 	virtual int GetType() const = 0;
 
@@ -302,6 +304,53 @@ private:
 	// Handler functions
 	// -------------------------	
 	static void CALLBACK TimerProcStatic(void* lpParameter, BOOLEAN TimerOrWaitFired); // proc will call CallListeners()
+};
+
+//-----------------------------------------------------------------
+// DropDown Class
+//-----------------------------------------------------------------
+
+class DropDown : public Caller
+{
+public:
+	DropDown(const tstring& textRef);
+	DropDown();
+
+	virtual ~DropDown() override;
+
+	// Disabling copy/move constructors and assignment operators   
+	DropDown(const DropDown& other) = delete;
+	DropDown(DropDown&& other) noexcept = delete;
+	DropDown& operator=(const DropDown& other) = delete;
+	DropDown& operator=(DropDown&& other) noexcept = delete;
+
+	int			GetType() const { return Caller::TextBox; }
+	void		SetBounds(int x, int y, int width, int height);
+	tstring		GetText()													const;
+	void		SetText(const tstring& textRef);
+	void		SetFont(const tstring& fontNameRef, bool bold, bool italic, bool underline, int size);
+
+	void		AddItemList(std::vector<tstring> itemList)					const;
+	RECT		GetRect()													const;
+	void		SetEnabled(bool bEnable);
+	void		Update(void)												const;
+	void		Show()														const;
+	void		Hide()														const;
+
+private:
+	// -------------------------
+	// Datamembers
+	// -------------------------
+	int			m_X, m_Y, m_SelectedItemIdx;
+	HWND		hWndComboBox;
+	WNDPROC		m_ProcOldDropDown;
+	HFONT		m_Font, m_OldFont;
+
+	// -------------------------
+	// Handler functions
+	// -------------------------	
+	static LRESULT CALLBACK EditProcStatic(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+	LRESULT EditProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
 //-----------------------------------------------------------------

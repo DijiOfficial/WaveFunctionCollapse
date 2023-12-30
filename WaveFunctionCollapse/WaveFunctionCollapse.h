@@ -13,6 +13,7 @@
 #include "GameEngine.h"
 #include "AbstractGame.h"
 
+class Slider;
 class Tiles;
 struct UI
 {
@@ -65,10 +66,10 @@ public:
 	void Paint(RECT rect) override;
 	void Tick() override;
 	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam) override;
-	void MouseWheelAction(int x, int y, int distance, WPARAM wParam) override;
-	void MouseMove(int x, int y, WPARAM wParam) override;
-	void CheckKeyboard() override;
-	void KeyPressed(TCHAR cKey) override;
+	void MouseWheelAction(int x, int y, int distance, WPARAM wParam) override {};
+	void MouseMove(int x, int y, WPARAM wParam) override {};
+	void CheckKeyboard() override {};
+	void KeyPressed(TCHAR cKey) override {};
 
 	void CallAction(Caller* callerPtr) override;
 	bool CollapseFunctionAlgorithm(int x = -1, int y = -1, bool isClicked = false);
@@ -82,6 +83,7 @@ private:
 	int m_WorldWidth = 60;
 	int m_WorldHeight = 34;
 	constexpr static int TILE_SIZE = 16;
+	int m_FPS{ 50 };
 
 	std::vector<Tiles*> m_TilesPtrVec{};
 	Bitmap* m_BmpTileTexturePtr{};
@@ -90,19 +92,25 @@ private:
 	bool m_WFCIsRunning{ false };
 	bool m_AllowTileClick{ false };
 
-	//Resize button
+	//speed slider? -> needs improvement
 	//dropdown menu to edit weights
-	//speed slider?
 	//dropdown menu to select tileset you want to place or after click spawn option with dropdown menu?
 	TextBox* m_TxtInputPtr{};
 	Button* m_BtnClickPtr{};
 	Button* m_BtnAllowTileClickPtr{};
 	Button* m_BtnCompletePtr{};
 	Button* m_BtnResetPtr{};
+	Button* m_BtnResizePtr{};
+	
 	TextBox* m_TxtViewWidthPtr{};
 	TextBox* m_TxtViewHeightPtr{};
+	TextBox* m_TxtSpeedPtr{};
+
+	Slider* m_SliderPtr{};
 
 	void CreateUI();
 	void Reset();
+	void ResizeWorld();
+	void SetButtonsPosition() const;
 	UI m_UI{};
 };

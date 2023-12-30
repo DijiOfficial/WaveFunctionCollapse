@@ -13,6 +13,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Game Files\SubClass">
+      <UniqueIdentifier>{bc76d437-774f-44db-bb39-1926e8789c60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WaveFunctionCollapse.cpp">
@@ -33,8 +36,11 @@
     <ClCompile Include="Vector2f.cpp">
       <Filter>Engine Files</Filter>
     </ClCompile>
+    <ClCompile Include="Slider.cpp">
+      <Filter>Game Files\SubClass</Filter>
+    </ClCompile>
     <ClCompile Include="Tiles.cpp">
-      <Filter>Game Files</Filter>
+      <Filter>Game Files\SubClass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,9 +62,6 @@
     <ClInclude Include="WaveFunctionCollapse.h">
       <Filter>Game Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tiles.h">
-      <Filter>Game Files</Filter>
-    </ClInclude>
     <ClInclude Include="structs.h">
       <Filter>Engine Files</Filter>
     </ClInclude>
@@ -66,7 +69,13 @@
       <Filter>Engine Files</Filter>
     </ClInclude>
     <ClInclude Include="EnumClasses.h">
-      <Filter>Game Files</Filter>
+      <Filter>Game Files\SubClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Slider.h">
+      <Filter>Game Files\SubClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Tiles.h">
+      <Filter>Game Files\SubClass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

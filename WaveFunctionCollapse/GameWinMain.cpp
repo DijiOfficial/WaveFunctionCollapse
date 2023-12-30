@@ -9,7 +9,7 @@
 #include "GameWinMain.h"
 #include "GameEngine.h"
 
-#include "X.h"	
+#include "WaveFunctionCollapse.h"	
 
 //-----------------------------------------------------------------
 // Defines
@@ -24,7 +24,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	if (GAME_ENGINE == nullptr) return FALSE;		// create the game engine object, exit if it fails
 
-	GAME_ENGINE->SetGame(new X());					// any class that implements AbstractGame
+	GAME_ENGINE->SetGame(new WaveFunctionCollapse());					// any class that implements AbstractGame
 
 	return GAME_ENGINE->Run(hInstance, nCmdShow);	// here we go
 }

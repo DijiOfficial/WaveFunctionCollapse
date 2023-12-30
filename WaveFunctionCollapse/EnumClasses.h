@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <vector>
+#include <string>
 
 // All available tiles
 enum class TileName 
@@ -42,6 +43,45 @@ enum class TileName
 	TILE_FORESTNW2 = 34,
 };
 
+// Create A vector of all available tiles names
+static std::vector<std::wstring> TileNamesVec
+{
+	L"TILE_GRASS",
+	L"TILE_WATER",
+	L"TILE_FOREST",
+	L"TILE_COASTN",
+	L"TILE_COASTE",
+	L"TILE_COASTS",
+	L"TILE_COASTW",
+	L"TILE_COASTNE",
+	L"TILE_COASTSE",
+	L"TILE_COASTSW",
+	L"TILE_COASTNW",
+	L"TILE_COASTNE2",
+	L"TILE_COASTSE2",
+	L"TILE_COASTSW2",
+	L"TILE_COASTNW2",
+	L"TILE_ROCKN",
+	L"TILE_ROCKE",
+	L"TILE_ROCKS",
+	L"TILE_ROCKW",
+	L"TILE_ROCKNE",
+	L"TILE_ROCKSE",
+	L"TILE_ROCKSW",
+	L"TILE_ROCKNW",
+	L"TILE_FORESTS",
+	L"TILE_FORESTW",
+	L"TILE_FORESTN",
+	L"TILE_FORESTE",
+	L"TILE_FORESTSW",
+	L"TILE_FORESTNW",
+	L"TILE_FORESTNE",
+	L"TILE_FORESTSE",
+	L"TILE_FORESTNE2",
+	L"TILE_FORESTSE2",
+	L"TILE_FORESTSW2",
+	L"TILE_FORESTNW2"
+};
 // All possible tile edge types, Used for determining which tile can connect to which set in the rules (see below)
 enum TileType
 {

@@ -242,6 +242,23 @@ void GameEngine::ShowMousePointer(bool value) const
 	InvalidateRect(m_Window, 0, true);
 }
 
+void GameEngine::ResizeWindow()
+{
+	if (m_Window == nullptr)
+		return;
+
+	// Get the screen dimensions
+	const int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	const int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+	// Calculate the new position to center the window
+	const int x = (screenWidth - m_Width) * 0.5f;
+	const int y = (screenHeight - m_Height) * 0.5f;
+
+	// Adjust the window size
+	SetWindowPos(m_Window, nullptr, x, y, m_Width, m_Height, SWP_NOZORDER);
+}
+
 bool GameEngine::SetWindowRegion(const HitRegion* regionPtr)
 {
 	if (m_Fullscreen) return false;
@@ -1262,7 +1279,10 @@ LRESULT GameEngine::HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
 
 		case WM_CTLCOLORBTN:
 			return SendMessage((HWND) lParam, WM_CTLCOLOREDIT, wParam, lParam);	// delegate this message to the child window
-
+		
+		//case WM_COMMAND:
+		//	return SendMessage((HWND) lParam, WM_COMMAND, wParam, lParam); // Delegate this message to the child window
+		
 		case WM_LBUTTONDOWN:
 			m_GamePtr->MouseButtonAction(true, true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), wParam);
 			return 0;
@@ -2020,6 +2040,219 @@ LRESULT Audio::AudioProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 }
 
 //-----------------------------------------------------------------
+// DropDown methods
+//-----------------------------------------------------------------
+
+#pragma warning(disable:4311)	
+#pragma warning(disable:4312)
+//DropDown::DropDown(const tstring& textRef) : m_X(0), m_Y(0), m_BgColor(RGB(255, 255, 255)), m_ForeColor(RGB(0, 0, 0)), m_BgColorBrush(0), m_Font(0), m_OldFont(0)
+DropDown::DropDown(const tstring& textRef) : m_X(0), m_Y(0), m_SelectedItemIdx(0)
+{
+	// Create the DropDown
+	//hWndComboBox = CreateWindow(_T("COMBOBOX"), textRef.c_str(), WS_BORDER | WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, 0, 0, 0, 0, GameEngine::GetSingleton()->GetWindow(), NULL, GameEngine::GetSingleton()->GetInstance(), nullptr);
+	// clip sibling??
+	hWndComboBox = CreateWindow(_T("COMBOBOX"), textRef.c_str(), WS_BORDER | WS_CHILD 				| WS_TABSTOP | ES_LEFT | CBS_DROPDOWN | CBS_HASSTRINGS | WS_OVERLAPPED, 0, 0, 0, 0, GameEngine::GetSingleton()->GetWindow(), NULL, GameEngine::GetSingleton()->GetInstance(), nullptr);
+
+	// Set the new WNDPROC for the DropDown, and store old one
+	m_ProcOldDropDown = (WNDPROC)SetWindowLongPtr(hWndComboBox, GWLA_WNDPROC, (LONG_PTR)EditProcStatic);
+
+	// Set this object as userdata for the static wndproc function of the DropDown so that it can call members
+	SetWindowLongPtr(hWndComboBox, GWLA_USERDATA, (LONG_PTR)this);
+}
+
+//DropDown::DropDown() : m_X(0), m_Y(0), m_BgColor(RGB(255, 255, 255)), m_ForeColor(RGB(0, 0, 0)), m_BgColorBrush(0), m_Font(0), m_OldFont(0)
+DropDown::DropDown() : m_X(0), m_Y(0), m_SelectedItemIdx(0)
+{
+	// CrCreate the DropDown
+	hWndComboBox = CreateWindow(_T("COMBOBOX"), _T(""), WS_BORDER | WS_CHILD | WS_TABSTOP | ES_LEFT | CBS_DROPDOWN | CBS_HASSTRINGS | WS_OVERLAPPED, 0, 0, 0, 0, GameEngine::GetSingleton()->GetWindow(), NULL, GameEngine::GetSingleton()->GetInstance(), nullptr);
+
+	// Set the new WNDPROC for the DropDown, and store old one
+	m_ProcOldDropDown = (WNDPROC)SetWindowLongPtr(hWndComboBox, GWLA_WNDPROC, (LONG_PTR)EditProcStatic);
+
+	// Set this object as userdata for the static wndproc function of the DropDown so that it can call members
+	SetWindowLongPtr(hWndComboBox, GWLA_USERDATA, (LONG_PTR)this);
+}
+#pragma warning(default:4311)
+#pragma warning(default:4312)
+
+DropDown::~DropDown()
+{
+	// release the font if necessary
+	if (m_Font != 0)
+	{
+		SelectObject(GetDC(hWndComboBox), m_OldFont);
+		DeleteObject(m_Font);
+		m_Font = m_OldFont = 0;
+	}
+
+	// release the window resources
+	DestroyWindow(hWndComboBox);
+	hWndComboBox = NULL;
+}
+
+void DropDown::SetBounds(int x, int y, int width, int height)
+{
+	m_X = x;
+	m_Y = y;
+
+	MoveWindow(hWndComboBox, x, y, width, height, true);
+}
+
+void DropDown::AddItemList(std::vector<tstring> itemList) const
+{
+	const int size = static_cast<int>(itemList.size());
+	//TCHAR test = L"test";
+	//TCHAR Planets[9][10] =
+	//{
+	//	TEXT("Mercury"), TEXT("Venus"), TEXT("Terra"), TEXT("Mars"),
+	//	TEXT("Jupiter"), TEXT("Saturn"), TEXT("Uranus"), TEXT("Neptune"),
+	//	TEXT("Pluto??")
+	//};
+
+	//TCHAR A[16];
+	//int  k = 0;
+
+	//memset(&A, 0, sizeof(A));
+	for (int k = 0; k < size; ++k)
+	{
+		//wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)itemList[k]);
+
+		// Add string to combobox.
+		SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)itemList[k].c_str());
+	}
+
+	// Send the CB_SETCURSEL message to display an initial item 
+	//  in the selection field  
+	SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)2, (LPARAM)0);
+}
+
+RECT DropDown::GetRect() const
+{
+	RECT rc;
+
+	GetClientRect(hWndComboBox, &rc);
+
+	rc.left += m_X;
+	rc.right += m_X;
+	rc.top += m_Y;
+	rc.bottom += m_Y;
+
+	return rc;
+}
+
+void DropDown::SetEnabled(bool bEnable)
+{
+	EnableWindow(hWndComboBox, bEnable);
+}
+
+void DropDown::Update() const
+{
+	UpdateWindow(hWndComboBox);
+}
+
+void DropDown::Show() const
+{
+	// Show and update the edit box
+	ShowWindow(hWndComboBox, SW_SHOW);
+	UpdateWindow(hWndComboBox);
+}
+
+void DropDown::Hide() const
+{
+	// Show and update the edit box
+	ShowWindow(hWndComboBox, SW_HIDE);
+	UpdateWindow(hWndComboBox);
+}
+
+tstring DropDown::GetText() const
+{
+	int textLength = (int)SendMessage(hWndComboBox, (UINT)WM_GETTEXTLENGTH, 0, 0);
+
+	TCHAR* bufferPtr = new TCHAR[textLength + 1];
+
+	SendMessage(hWndComboBox, (UINT)WM_GETTEXT, (WPARAM)textLength + 1, (LPARAM)bufferPtr);
+
+	tstring newString(bufferPtr);
+
+	delete[] bufferPtr;
+
+	return newString;
+}
+
+void DropDown::SetText(const tstring& textRef)
+{
+	SendMessage(hWndComboBox, WM_SETTEXT, 0, (LPARAM)textRef.c_str());
+}
+
+void DropDown::SetFont(const tstring& fontNameRef, bool bold, bool italic, bool underline, int size)
+{
+	LOGFONT ft;
+
+	//_tcscpy_s(ft.lfFaceName, sizeof(ft.lfFaceName) / sizeof(TCHAR), fontName.c_str());
+	for (int teller = 0; teller < (int)fontNameRef.size() && teller < LF_FACESIZE; ++teller)
+	{
+		ft.lfFaceName[teller] = fontNameRef[teller];
+	}
+
+	ft.lfStrikeOut = 0;
+	ft.lfUnderline = underline ? 1 : 0;
+	ft.lfHeight = size;
+	ft.lfEscapement = 0;
+	ft.lfWeight = bold ? FW_BOLD : 0;
+	ft.lfItalic = italic ? 1 : 0;
+
+	// clean up if another custom font was already in place
+	if (m_Font != 0) { DeleteObject(m_Font); }
+
+	// create the font
+	m_Font = CreateFontIndirect(&ft);
+
+	// set the font
+	SendMessage(hWndComboBox, WM_SETFONT, (WPARAM)m_Font, 0);
+
+	// redraw the textbox
+	InvalidateRect(hWndComboBox, nullptr, true);
+}
+
+LRESULT DropDown::EditProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+#pragma warning(disable: 4312)
+	return reinterpret_cast<DropDown*>(GetWindowLongPtr(hWnd, GWLA_USERDATA))->EditProc(hWnd, msg, wParam, lParam);
+#pragma warning(default: 4312)
+}
+
+LRESULT DropDown::EditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_COMMAND:
+		// If the user makes a selection from the list:
+		//   Send CB_GETCURSEL message to get the index of the selected list item.
+		//   Send CB_GETLBTEXT message to get the item.
+		//   Display the item in a messagebox.
+		if (HIWORD(wParam) == CBN_SELCHANGE)
+		{
+			m_SelectedItemIdx = SendMessage((HWND)lParam, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+			TCHAR  ListItem[256];
+
+			(TCHAR)SendMessage((HWND)lParam, (UINT)CB_GETLBTEXT, (WPARAM)m_SelectedItemIdx, (LPARAM)ListItem);
+
+			LRESULT result = SendMessage((HWND)lParam, (UINT)CB_GETLBTEXT, (WPARAM)m_SelectedItemIdx, (LPARAM)ListItem);
+			//MessageBox(hwnd, (LPCWSTR)ListItem, TEXT("Item Selected"), MB_OK);
+		}
+
+		return 0;
+
+	case WM_DISPLAYCHANGE:
+		InvalidateRect(hWndComboBox, NULL, FALSE);
+
+		return 0;
+	default:
+		return 1;
+	}
+}
+
+//-----------------------------------------------------------------
 // TextBox methods
 //-----------------------------------------------------------------
 
@@ -2243,8 +2476,6 @@ LRESULT TextBox::EditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return CallWindowProc(m_ProcOldEdit, hWnd, msg, wParam, lParam);
 }
-
-
 
 //-----------------------------------------------------------------
 // Button methods

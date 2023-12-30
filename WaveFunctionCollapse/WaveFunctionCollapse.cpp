@@ -13,7 +13,7 @@
 #include <stack>
 #include <vld.h>
 #include <string>
-
+#include "Slider.h"
 //-----------------------------------------------------------------
 // WaveFunctionCollapse methods																				
 //-----------------------------------------------------------------
@@ -38,18 +38,10 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
 	// Set the optional values
 	GAME_ENGINE->SetWidth(m_WorldWidth * TILE_SIZE);
 	GAME_ENGINE->SetHeight(m_WorldHeight * TILE_SIZE);
-    GAME_ENGINE->SetFrameRate(144);
+    GAME_ENGINE->SetFrameRate(m_FPS);
 	
 	// Load the bitmap
 	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles4.bmp"));
-	//m_BmpTileTexturePtr->SetTransparencyColor(RGB(255, 0, 255));
-
-	// Set the keys that the game needs to listen to
-	//tstringstream buffer;
-	//buffer << _T("KLMO");
-	//buffer << (TCHAR) VK_LEFT;
-	//buffer << (TCHAR) VK_RIGHT;
-	//GAME_ENGINE->SetKeyList(buffer.str());
 }
 
 void WaveFunctionCollapse::Start(bool reset)
@@ -94,6 +86,8 @@ void WaveFunctionCollapse::End()
 	delete m_BtnCompletePtr;
 	delete m_TxtViewWidthPtr;
 	delete m_TxtViewHeightPtr;
+	delete m_BtnResizePtr;
+	delete m_SliderPtr;
 }
 
 void WaveFunctionCollapse::Paint(RECT rect)
@@ -139,10 +133,14 @@ void WaveFunctionCollapse::Paint(RECT rect)
 		}
 	}
 
+
+	// UI elements
 	std::wstring buffer{ L"Toggle Generate On Click" };
 	const RECT stringRect = m_BtnAllowTileClickPtr->GetRect();
 	GAME_ENGINE->SetColor(RGB(255,255,255));
 	GAME_ENGINE->DrawString(buffer, stringRect.left - 180, stringRect.bottom - m_UI.buttonHeight / 1.5f, 300, 300);
+
+	m_SliderPtr->Paint();
 }
 
 void WaveFunctionCollapse::Tick()
@@ -153,68 +151,20 @@ void WaveFunctionCollapse::Tick()
 
 void WaveFunctionCollapse::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
 {	
-	if (isLeft and not isDown and m_AllowTileClick)
+	if (isLeft and not isDown )
 	{
-		CollapseFunctionAlgorithm(x, y, true);
+		if (m_AllowTileClick)
+			CollapseFunctionAlgorithm(x, y, true);
+		
+		m_SliderPtr->SetClickedFalse();
 	}
-}
-void WaveFunctionCollapse::MouseWheelAction(int x, int y, int distance, WPARAM wParam)
-{	
-	// Insert the code that needs to be executed when the game registers a mouse wheel action
-}
-void WaveFunctionCollapse::MouseMove(int x, int y, WPARAM wParam)
-{	
-	// Insert the code that needs to be executed when the mouse pointer moves across the game window
-
-	/* Example:
-	if ( x > 261 && x < 261 + 117 ) // check if mouse position is within x coordinates of choice
+	
+	if (isLeft and isDown)
 	{
-		if ( y > 182 && y < 182 + 33 ) // check if mouse position also is within y coordinates of choice
-		{
-			GAME_ENGINE->MessageBox(_T("Da mouse wuz here."));
-		}
+		m_SliderPtr->Update(x, y);
+		m_FPS = m_SliderPtr->GetFPS();
+		GAME_ENGINE->SetFrameRate(m_FPS);
 	}
-	*/
-}
-void WaveFunctionCollapse::CheckKeyboard()
-{	
-	// Here you can check if a key of choice is held down
-	// Is executed once per frame if the Game Loop is running 
-
-	/* Example:
-	if (GAME_ENGINE->IsKeyDown(_T('K'))) xIcon -= xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('L'))) yIcon += xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('M'))) xIcon += xSpeed;
-	if (GAME_ENGINE->IsKeyDown(_T('O'))) yIcon -= ySpeed;
-	*/
-}
-void WaveFunctionCollapse::KeyPressed(TCHAR cKey)
-{	
-	// DO NOT FORGET to use SetKeyList() !!
-
-	// Insert the code that needs to be executed when a key of choice is pressed
-	// Is executed as soon as the key is released
-	// You first need to specify the keys that the game engine needs to watch by using the SetKeyList() method
-
-	/* Example:
-	switch (cKey)
-	{
-	case _T('K'): case VK_LEFT:
-		GAME_ENGINE->MessageBox(_T("Moving left."));
-		break;
-	case _T('L'): case VK_DOWN:
-		GAME_ENGINE->MessageBox(_T("Moving down."));
-		break;
-	case _T('M'): case VK_RIGHT:
-		GAME_ENGINE->MessageBox(_T("Moving right."));
-		break;
-	case _T('O'): case VK_UP:
-		GAME_ENGINE->MessageBox(_T("Moving up."));
-		break;
-	case VK_ESCAPE:
-		GAME_ENGINE->MessageBox(_T("Escape menu."));
-	}
-	*/
 }
 void WaveFunctionCollapse::CallAction(Caller* callerPtr)
 {
@@ -242,7 +192,13 @@ void WaveFunctionCollapse::CallAction(Caller* callerPtr)
 			m_WFCIsOver = CollapseFunctionAlgorithm();
 	}
 	else if (callerPtr == m_BtnResetPtr)
+	{
 		Reset();
+	}
+	else if (callerPtr == m_BtnResizePtr)
+	{
+		ResizeWorld();
+	}
 }
 
 std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
@@ -286,66 +242,6 @@ int WaveFunctionCollapse::GetLowestEntropy() const
 	}
 
 	return lowestEntropy;
-}
-
-void WaveFunctionCollapse::CreateUI()
-{
-	m_UI.SetViewWidth(GAME_ENGINE->GetWidth());
-	m_UI.SetViewHeight(GAME_ENGINE->GetHeight());
-
-	m_TxtViewWidthPtr = new TextBox(std::to_wstring(m_WorldWidth));
-	m_TxtViewWidthPtr->SetBounds(m_UI.alignRight + m_UI.padding, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
-	m_TxtViewWidthPtr->AddActionListener(this);
-	m_TxtViewWidthPtr->SetFont(_T("Sans Serif"), true, false, false, 20);
-	m_TxtViewWidthPtr->Show();
-
-	m_TxtViewHeightPtr = new TextBox(std::to_wstring(m_WorldHeight));
-	m_TxtViewHeightPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight - m_UI.padding, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
-	m_TxtViewHeightPtr->AddActionListener(this);
-	m_TxtViewHeightPtr->SetFont(_T("Sans Serif"), true, false, false, 20);
-	m_TxtViewHeightPtr->Show();
-
-	m_BtnClickPtr = new Button(_T("Start"));
-	m_BtnClickPtr->SetBounds(m_UI.alignRight, m_UI.alignTop, m_UI.buttonWidth, m_UI.buttonHeight);
-	m_BtnClickPtr->AddActionListener(this);
-	m_BtnClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
-	m_BtnClickPtr->Show();
-
-	m_BtnAllowTileClickPtr = new Button(_T("X"));
-	m_BtnAllowTileClickPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight, m_UI.alignTop - m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
-	m_BtnAllowTileClickPtr->AddActionListener(this);
-	m_BtnAllowTileClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
-	m_BtnAllowTileClickPtr->Show(); 
-
-	m_BtnCompletePtr = new Button(_T("Complete"));
-	m_BtnCompletePtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 2 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
-	m_BtnCompletePtr->AddActionListener(this);
-	m_BtnCompletePtr->SetFont(_T("Sans Serif"), true, false, false, 30);
-	m_BtnCompletePtr->Show();
-
-	m_BtnResetPtr = new Button(_T("Reset"));
-	m_BtnResetPtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 3 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
-	m_BtnResetPtr->AddActionListener(this);
-	m_BtnResetPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
-	m_BtnResetPtr->Show();
-}
-
-void WaveFunctionCollapse::Reset()
-{
-	m_WFCIsOver = { false };
-	m_WFCIsRunning = { false };
-	m_AllowTileClick = { false };
-
-	m_BtnClickPtr->SetText(_T("Start"));
-	m_BtnAllowTileClickPtr->SetText(_T("X"));
-
-	for (auto& tile : m_TilesPtrVec)
-	{
-		delete tile;
-	}
-	m_TilesPtrVec.clear();
-
-	Start(true);
 }
 
 bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicked)
@@ -397,4 +293,115 @@ bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicke
 }
 
 
+void WaveFunctionCollapse::CreateUI()
+{
+	m_UI.SetViewWidth(GAME_ENGINE->GetWidth());
+	m_UI.SetViewHeight(GAME_ENGINE->GetHeight());
 
+	m_TxtViewWidthPtr = new TextBox(std::to_wstring(m_WorldWidth));
+	m_TxtViewWidthPtr->AddActionListener(this);
+	m_TxtViewWidthPtr->SetFont(_T("Sans Serif"), true, false, false, 22);
+	m_TxtViewWidthPtr->Show();
+
+	m_TxtViewHeightPtr = new TextBox(std::to_wstring(m_WorldHeight));
+	m_TxtViewHeightPtr->AddActionListener(this);
+	m_TxtViewHeightPtr->SetFont(_T("Sans Serif"), true, false, false, 22);
+	m_TxtViewHeightPtr->Show();
+
+	m_BtnClickPtr = new Button(_T("Start"));
+	m_BtnClickPtr->AddActionListener(this);
+	m_BtnClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnClickPtr->Show();
+
+	m_BtnAllowTileClickPtr = new Button(_T("X"));
+	m_BtnAllowTileClickPtr->AddActionListener(this);
+	m_BtnAllowTileClickPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnAllowTileClickPtr->Show();
+
+	m_BtnCompletePtr = new Button(_T("Complete"));
+	m_BtnCompletePtr->AddActionListener(this);
+	m_BtnCompletePtr->SetFont(_T("Sans Serif"), true, false, false, 25);
+	m_BtnCompletePtr->Show();
+
+	m_BtnResetPtr = new Button(_T("Reset"));
+	m_BtnResetPtr->AddActionListener(this);
+	m_BtnResetPtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnResetPtr->Show();
+
+	m_BtnResizePtr = new Button(_T("Resize"));
+	m_BtnResizePtr->AddActionListener(this);
+	m_BtnResizePtr->SetFont(_T("Sans Serif"), true, false, false, 30);
+	m_BtnResizePtr->Show();
+
+	m_SliderPtr = new Slider(m_UI.alignRight, m_UI.alignTop - 6 * m_UI.translateY, m_FPS);
+
+	SetButtonsPosition();
+}
+
+void WaveFunctionCollapse::SetButtonsPosition() const
+{
+	// Slider
+	m_SliderPtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 6 * m_UI.translateY);
+
+	// Textboxes
+	m_TxtViewWidthPtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight * 2, m_UI.buttonHeight);
+	m_TxtViewHeightPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight * 2, m_UI.alignTop - 4 * m_UI.translateY, m_UI.buttonHeight * 2, m_UI.buttonHeight);
+
+	// Buttons
+	m_BtnClickPtr->SetBounds(m_UI.alignRight, m_UI.alignTop, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnAllowTileClickPtr->SetBounds(m_UI.alignRight + m_UI.buttonWidth - m_UI.buttonHeight, m_UI.alignTop - m_UI.translateY, m_UI.buttonHeight, m_UI.buttonHeight);
+	m_BtnCompletePtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 2 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnResetPtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 3 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
+	m_BtnResizePtr->SetBounds(m_UI.alignRight, m_UI.alignTop - 5 * m_UI.translateY, m_UI.buttonWidth, m_UI.buttonHeight);
+}
+
+void WaveFunctionCollapse::Reset()
+{
+	m_WFCIsOver = { false };
+	m_WFCIsRunning = { false };
+	m_AllowTileClick = { false };
+
+	m_BtnClickPtr->SetText(_T("Start"));
+	m_BtnAllowTileClickPtr->SetText(_T("X"));
+
+	for (auto& tile : m_TilesPtrVec)
+	{
+		delete tile;
+	}
+	m_TilesPtrVec.clear();
+
+	Start(true);
+}
+
+void WaveFunctionCollapse::ResizeWorld()
+{
+	// Get the new width and height of the world and set the new width and height of the game window
+	m_WorldWidth = std::stoi(m_TxtViewWidthPtr->GetText());
+	if (m_WorldWidth > 150)
+		m_WorldWidth = 150;
+	else if (m_WorldWidth < 1)
+		m_WorldWidth = 1;
+
+	m_WorldHeight = std::stoi(m_TxtViewHeightPtr->GetText());
+	if (m_WorldHeight > 100)
+		m_WorldHeight = 100;
+	else if (m_WorldHeight < 1)
+		m_WorldHeight = 1;
+
+	GAME_ENGINE->SetWidth(m_WorldWidth * TILE_SIZE);
+	GAME_ENGINE->SetHeight(m_WorldHeight * TILE_SIZE);
+
+	m_TxtViewWidthPtr->SetText(std::to_wstring(m_WorldWidth));
+	m_TxtViewHeightPtr->SetText(std::to_wstring(m_WorldHeight));
+
+	// Set the new width and height of the view for the buttons and textboxes
+	m_UI.SetViewWidth(m_WorldWidth * TILE_SIZE);
+	m_UI.SetViewHeight(m_WorldHeight * TILE_SIZE);
+
+	//Reset size of every button and textbox
+	SetButtonsPosition();
+
+	// Resize the buttons and textboxes
+	GAME_ENGINE->ResizeWindow();
+	Reset();
+}
