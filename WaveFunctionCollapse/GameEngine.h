@@ -484,7 +484,6 @@ private:
 //-----------------------------------------------------------------
 // Bitmap Class
 //-----------------------------------------------------------------
-//class BitmapNotLoadedException {};
 
 class Bitmap final
 {
@@ -632,8 +631,19 @@ class Font final
 {
 public:
 	Font(const tstring& fontNameRef, bool bold, bool italic, bool underline, int size);
-	virtual ~Font();
+	~Font();
 
+	//---------------------------
+	// Disabling copy/move constructors and assignment operators   
+	//---------------------------
+	Font(const Font& other) = delete;
+	Font(Font&& other) noexcept = delete;
+	Font& operator=(const Font& other) = delete;
+	Font& operator=(Font&& other) noexcept = delete;
+
+	//---------------------------
+	// General Methods
+	//---------------------------
 	HFONT GetHandle() {return m_hFont;}
 
 private:

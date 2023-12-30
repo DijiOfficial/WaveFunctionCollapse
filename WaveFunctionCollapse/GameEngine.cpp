@@ -381,16 +381,19 @@ bool GameEngine::ClassRegister(int cmdShow)
   if (!RegisterClassEx(&wndclass))
     return false;
 
+  // Calculate window dimensions based on client rect
+  RECT windowRect{ 0, 0, m_Width, m_Height };
+  AdjustWindowRect(&windowRect, WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN, false);
+
   // Calculate the window size and position based upon the size
-  int iWindowWidth = m_Width + GetSystemMetrics(SM_CXFIXEDFRAME) * 2,
-      iWindowHeight = m_Height + GetSystemMetrics(SM_CYFIXEDFRAME) * 2 +
-        GetSystemMetrics(SM_CYCAPTION);
+  int iWindowWidth = windowRect.right - windowRect.left,
+	  iWindowHeight = windowRect.bottom - windowRect.top;
 
   if (wndclass.lpszMenuName != NULL)
-    iWindowHeight += GetSystemMetrics(SM_CYMENU);
+	  iWindowHeight += GetSystemMetrics(SM_CYMENU);
 
   int iXWindowPos = (GetSystemMetrics(SM_CXSCREEN) - iWindowWidth) / 2,
-      iYWindowPos = (GetSystemMetrics(SM_CYSCREEN) - iWindowHeight) / 2;
+	  iYWindowPos = (GetSystemMetrics(SM_CYSCREEN) - iWindowHeight) / 2;
 
   // Create the window
   m_Window = CreateWindow(	m_TitlePtr->c_str(), 
@@ -1398,8 +1401,6 @@ Bitmap::Bitmap(const tstring& nameRef, bool createAlphaChannel) : m_hBitmap(0), 
 	}
 
 	if (m_IsTarga || createAlphaChannel) LoadBitInfo();
-
-	//if (!Exists()) throw BitmapNotLoadedException();
 }
 
 Bitmap::Bitmap(int IDBitmap, const tstring& typeRef, bool createAlphaChannel): m_TransparencyKey(-1), m_Opacity(100), m_Exists(false)
@@ -2158,8 +2159,11 @@ void TextBox::SetFont(const tstring& fontNameRef, bool bold, bool italic, bool u
 	// clean up if another custom font was already in place
 	if (m_Font != 0) { DeleteObject(m_Font); }
 
-	// create the new font. The WM_CTLCOLOREDIT message will set the font when the textbox is about to redraw
+	// create the font
     m_Font = CreateFontIndirect(&ft);
+
+	// set the font
+	SendMessage(m_hWndEdit, WM_SETFONT, (WPARAM) m_Font, 0);
 
 	// redraw the textbox
 	InvalidateRect(m_hWndEdit, nullptr, true);
@@ -2213,11 +2217,7 @@ LRESULT TextBox::EditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_CTLCOLOREDIT:
 		SetBkColor((HDC) wParam, GetBackcolor() );
 		SetTextColor((HDC) wParam, GetForecolor() );
-		if (m_Font != 0) 
-		{
-			if (m_OldFont == 0) m_OldFont = (HFONT) SelectObject((HDC) wParam, m_Font);
-			else SelectObject((HDC) wParam, m_Font);
-		}
+
 		return (LRESULT) GetBackcolorBrush();
 
 	case WM_CHAR: 
