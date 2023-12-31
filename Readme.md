@@ -184,31 +184,128 @@ void Tiles::Collapse()
 }
 ```
 
+### 4. Constriction
 
+The constriction may not be the hardest step but it definitely is the hardest one to understand, in essence it is simply telling all neighboring Tobj of the one that was collapsed which tiles are now unavailable and continuing this processs until there are no more tile to constrict. It goes as follow:
 
-2.Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
+1. set a bool Constriction = false
+2. Create a list of all possible connections from available tiles list of the to the neighbor
+3. Loop through a copy of the available tiles list of the neighbor
+     - Check if the available tile has a connection that is in the list of possible connections (2.)
+     - If not then remove the tile from the neighbor's list of available tiles as it's no longer a valid tile
+     - Constriction = true
+4. Update the entropy
+5. return Constriction bool
+
+```c++
+// We take all the available tiles of the previous neighbor and add all the possible connections to the current tile
+// We then check the opposite direction to get the original tile the current tile
+// We now check that for every current tile available it can connect (possible connections) to the original tile (the one that was collapsed/constrained aka the previous neighbor)
+// If it can't connect we remove it (tile from possible connections) from the available tiles and return true so we can propagate to (constrain) neighbor tiles
+bool Tiles::Constrain(std::vector<TileName>& availableTilesVec, const Direction& direction)
+{
+    bool wasReduced = false;
+ 
+    if (m_Entropy == 0)
+        return false;
+    
+    // Add all possible connections from previous neighbor to neighbor(current tile) in given direction
+    std::vector<TileType> connectorsVec;
+    for (const auto& availableTile : availableTilesVec)
+    {
+        connectorsVec.push_back(TileRuleSet.find(availableTile)->second.m_TileTypesVec[static_cast<int>(direction)]);
+    }
+    
+    // Invert the roles and now loop through a copy of the current tile's available tiles to compare connections from this tile to the previous neighbor
+    const Direction oppositeDirection = static_cast<Direction>((static_cast<int>(direction) + 2) % 4);
+    const std::vector<TileName> availableTilesVecCopy{ m_AvailableTiles };
+
+    for (const auto& availableTile : availableTilesVecCopy)
+    {
+        // Find the possible connection from the current tile to the previous neighbor and
+        // If it's not a valid connection then remove asciociated tile from the available tiles of current tile
+        TileType possibleConnection = TileRuleSet.find(availableTile)->second.m_TileTypesVec[static_cast<int>(oppositeDirection)];
+        
+        const auto it = std::find(connectorsVec.begin(), connectorsVec.end(), possibleConnection);
+        if (it == connectorsVec.end())
+        {
+            // The item was not found
+            m_AvailableTiles.erase(std::remove(m_AvailableTiles.begin(), m_AvailableTiles.end(), availableTile), m_AvailableTiles.end());
+            wasReduced = true;
+        }
+    }
+
+    m_Entropy = static_cast<int>(m_AvailableTiles.size());
+    
+    return wasReduced;
+}
+```
+
+### Complete function
+
+1.Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
    - If the list is empty then all tiles have been collapsed and the generation is complete
    - return true
-3. Choose a random Tobj from the list and Collapse it
-  
-4. Create a stack and add the collapsed Tobj to the top
-5. Loop while the stack is not empty
+2. Choose a random Tobj from the list and Collapse it 
+3. Create a stack and add the collapsed Tobj to the top
+4. Loop while the stack is not empty
    - Pop the top Tobj on the stack and store it
    - Get the list of all available tiles from the Tobj *used later for Constriction
    - Loop throught all available directions or neighbors
      1. Get the neighbor in current direction and verify his entropy != 0
      2. Constrain the neighbor
-        - Bool Constriction = false
-        - Create a list of all possible connections from available tiles list (4.2) to the neighbor
-        - Loop through a copy of the available tiles list of the neighbor
-             1. Check if the available tile has a connection that is in the list of possible connections (b2)
-             2. If not then remove the tile from the neighbor's list of available tiles as it's no longer a valid tile
-             3. Constriction = true
-        - Update the entropy
-        - return Constriction
      3. If there was a constriction push that neighbor to the stack to check its neighbors
-6. return false
+5. return false
+   
+```c++
+bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicked)
+{
+	const auto lowestEntropyTilesList = GetLowestEntropyTiles();
+	if (lowestEntropyTilesList.empty())
+		return true;
 
+	int index = (y / TILE_SIZE) * m_WorldWidth + (x / TILE_SIZE);
+
+	// Choose a random available tile to collapse and push it to the stack
+	Tiles* tileToCollapse = nullptr;
+	if (isClicked)
+		tileToCollapse = m_TilesPtrVec[index];
+	else
+		tileToCollapse = lowestEntropyTilesList[rand() % static_cast<int>(lowestEntropyTilesList.size())];
+
+	tileToCollapse->Collapse();
+
+	std::stack<Tiles*> stack;
+	stack.push(tileToCollapse);
+
+	// Propagate the constraints to the neighbors (remove all of the neighbor's unavailable tiles based on the previous neighbor)
+	while (not stack.empty())
+	{
+		Tiles* currentTile = stack.top();
+		stack.pop();
+
+		// Get the available tiles and directions of the current tile
+		std::vector<TileName> AvailableTilesForNeighborVec{ currentTile->GetAvailableTiles() };
+		std::vector<Direction> directionsVec{ currentTile->GetDirections() };
+	
+		// Loop through all the nieghbors of the current tile
+		for (const auto& direction : directionsVec)
+		{
+			Tiles* neighbor = currentTile->GetNeighbor(direction);
+			if (neighbor->GetEntropy() == 0)
+				continue;
+
+			// If the neighbor was constrained*, push it to the stack. (If the neighbor had some tiles removed from his available tiles choices)
+			// then add that neighbor to the stack so his neighbors can be checked
+			// *see Constrain() implementation for more details
+			if (neighbor->Constrain(AvailableTilesForNeighborVec, direction))
+				stack.push(neighbor);
+		}
+	}
+
+	return false;
+}
+```
 You can now call the function every game tick or while the function return false call it again.
 
 ## Background:
