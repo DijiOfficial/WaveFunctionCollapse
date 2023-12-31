@@ -31,6 +31,7 @@ To get started with this Algorithm you will need to do an initial set up for it 
 
 1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
    - If the list is empty then all tiles have been collapsed and the generation is complete
+   - return true
 2. Choose a random Tobj from the list and Collapse it
    - Choose a random tile from the available tile choices left (you can use weights to influence the choice)
    - Clear the available tiles list of the Tobj and add the chosen tile
@@ -42,8 +43,18 @@ To get started with this Algorithm you will need to do an initial set up for it 
    - Loop throught all available directions or neighbors
      1. Get the neighbor in current direction and verify his entropy != 0
      2. Constrain the neighbor
-        -test
-
+        - Bool Constriction = false
+        - Create a list of all possible connections from available tiles list (4.2) to the neighbor
+        - Loop through a copy of the available tiles list of the neighbor
+             1. Check if the available tile can connect to any tile in the list of connections
+             2. If not then remove the tile from the neighbor's list of available tiles
+             3. Constriction = true
+        - Update the entropy
+        - return Constriction
+     3. If there was a constriction push that neighbor to the stack to check its neighbors
+5. return false
+   
+You can now call the function every game tick or while the function return false call it agin.
 
 ## Background:
 
