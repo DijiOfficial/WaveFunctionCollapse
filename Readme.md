@@ -46,8 +46,8 @@ To get started with this algorithm, you will need to do an initial setup based o
         - Bool Constriction = false
         - Create a list of all possible connections from available tiles list (4.2) to the neighbor
         - Loop through a copy of the available tiles list of the neighbor
-             1. Check if the available tile can connect to any tile in the list of connections
-             2. If not then remove the tile from the neighbor's list of available tiles
+             1. Check if the available tile has a connection that is in the list of possible connections (b2)
+             2. If not then remove the tile from the neighbor's list of available tiles as it's no longer a valid tile
              3. Constriction = true
         - Update the entropy
         - return Constriction
