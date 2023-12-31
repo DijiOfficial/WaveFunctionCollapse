@@ -308,6 +308,11 @@ bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicke
 ```
 You can now call the function every game tick or while the function return false call it again.
 
+#### Complexity
+it runs in O()
+
+## UI
+
 ## Background:
 
 - It's history and development in gaming and possibly other fields?
@@ -315,7 +320,10 @@ You can now call the function every game tick or while the function return false
 ## Uses and Implementations
 
 - List of uses of the algorithm
-  
+
+## Conclusion
+
+
 ## Sources
 
 - Link to all the sources used
