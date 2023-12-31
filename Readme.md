@@ -30,14 +30,14 @@ In the following paragraph the terms "tile" and "module" are interchangeable. A 
 To get started with this algorithm, you will need to do an initial setup based on the specific variation you are working on. For Project1, begin by defining all the tiles you will be using and establish the rule set that will dictate how the tiles connect to each other — in other words, specify which tile can connect to which. Create an array of Tile objects (Tobj) containing a list of available tiles and an entropy value. By default, the entropy will be set to the total number of tiles. Entropy represents the number of available tiles left to choose from after the constriction process (more on that later). Additionally, provide each Tobj with links to its neighbors, which will simplify the code later. I assigned a set of directions (N-E-S-W) to each Tobj and later defined how each direction identifies its neighbors in the array. Finally, to initiate the Wave Function Collapse, follow this pseudo-code:
 
 1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
-   1.1. If the list is empty then all tiles have been collapsed and the generation is complete
-   1.2. return true
-2. Choose a random Tobj from the list and Collapse it
+   1.1 If the list is empty then all tiles have been collapsed and the generation is complete
+   1.2 return true
+3. Choose a random Tobj from the list and Collapse it
    2.1. Choose a random tile from the available tile choices left (you can use weights to influence the choice)
    2.2. Clear the available tiles list of the Tobj and add the chosen tile
    2.3. Set the entropy to 0
-3. Create a stack and add the collapsed Tobj to the top
-4. Loop while the stack is not empty
+4. Create a stack and add the collapsed Tobj to the top
+5. Loop while the stack is not empty
    4.1. Pop the top Tobj on the stack and store it
    4.2. Get the list of all available tiles from the Tobj *used later for Constriction
    4.3. Loop throught all available directions or neighbors
@@ -52,7 +52,7 @@ To get started with this algorithm, you will need to do an initial setup based o
         4.3.2.4. Update the entropy
         4.3.2.5. return Constriction
      4.3.3. If there was a constriction push that neighbor to the stack to check its neighbors
-5. return false
+6. return false
 
 You can now call the function every game tick or while the function return false call it again.
 
