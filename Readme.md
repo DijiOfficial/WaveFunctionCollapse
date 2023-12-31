@@ -25,10 +25,25 @@ I have always been passionate about Algorithms, Math, Physics and Video Games an
 ![quick gif of the project in effect](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/Project1Demo.gif)
 
 ## Algorithm
-In the following paragraph the word "tile" and "module" are interchangeable. Tile refers to a 2D Width x Height image and module to a 3D Width x Height x Depth box containing a 3D asset. They don't neceserally need to be square/cube as long as the rule set doesn't allow for overlapping tiles/modules. However for the 2D version of this algorithm you can break down the Width x Height tile to a lower version of itself that is multiple square tiles and completing the rule set with those subset tiles. I will also refer to Tile objects as Tobj not to be confused with tiles. Tobj contain different values including a list of available tiles it can choose from.
+In the following paragraph the word "tile" and "module" are interchangeable. Tile refers to a 2D Width x Height image and module to a 3D Width x Height x Depth box containing a 3D asset. They don't neceserally need to be square/cube as long as the rule set doesn't allow for overlapping tiles/modules. However for the 2D version of this algorithm you can break down the Width x Height tile to multiple smaller square tiles and completing the rule set with those subset tiles. I will also refer to Tile objects as Tobj not to be confused with tiles. Tobj contain different values including a list of available tiles it can choose from.
 
-To get started with this Algorithm you will need to do an initial set up for it based on the variation you are doing. For the [Project1](#rpoject-1) first start by defining all the tiles you will be using and the subsequent rule set that will link all the tiles to each other or in other words which tile can connect to which tile. Make an array of Tobj containing a list of available tiles and an entropy value, by default entropy will be set to the total amount of tiles. Entropy is simply the amount of available tiles left to choose from after Constriction, more on that later. Finally to get started with the Wave Function Collapse follow this pseudo-code:
-1. Get a list of lowest entropy Tobj
+To get started with this Algorithm you will need to do an initial set up for it based on the variation you are doing. For the [Project1](#rpoject-1) first start by defining all the tiles you will be using and the subsequent rule set that will link all the tiles to each other or in other words which tile can connect to which tile. Make an array of Tobj containing a list of available tiles and an entropy value, by default entropy will be set to the total amount of tiles. Entropy is simply the amount of available tiles left to choose from after Constriction, more on that later. You will also need to give to every Tobj a link to its neighbors as it will simplify the code later, I gave to every Tobj a set of direction N-E-S-W and later defined how each direction gets the neighbors in the array. Finally to get started with the Wave Function Collapse follow this pseudo-code:
+
+1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
+   - If the list is empty then all tiles have been collapsed and the generation is complete
+2. Choose a random Tobj from the list and Collapse it
+   - Choose a random tile from the available tile choices left (you can use weights to influence the choice)
+   - Clear the available tiles list of the Tobj and add the chosen tile
+   - Set the entropy to 0
+3. Create a stack and add the collapsed Tobj to the top
+4. Loop while the stack is not empty
+   - Pop the top Tobj on the stack and store it
+   - Get the list of all available tiles from the Tobj *used later for Constriction
+   - Loop throught all available directions or neighbors
+     1. Get the neighbor in current direction and verify his entropy != 0
+     2. Constrain the neighbor
+        -test
+
 
 ## Background:
 
