@@ -243,7 +243,7 @@ bool Tiles::Constrain(std::vector<TileName>& availableTilesVec, const Direction&
 
 ### Complete function
 
-1.Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
+1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
    - If the list is empty then all tiles have been collapsed and the generation is complete
    - return true
 2. Choose a random Tobj from the list and Collapse it 
