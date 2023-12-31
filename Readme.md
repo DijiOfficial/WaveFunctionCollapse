@@ -27,10 +27,10 @@ I have always been passionate about Algorithms, Math, Physics and Video Games an
 ## Algorithm
 In the following paragraphs the terms "tile" and "module" are interchangeable. A 'tile' refers to a 2D image with dimensions Width x Height, while a 'module' refers to a 3D box with dimensions Width x Height x Depth containing a 3D asset. It's important to note that they don't necessarily need to be square or cubic, as long as the rule set prohibits overlapping tiles or modules. For the 2D version of this algorithm, you can decompose a Width x Height tile into multiple smaller square tiles, completing the rule set with these subset tiles. To avoid confusion, I will refer to Tile objects as 'Tobj,' distinguishing them from individual tiles. Tobj contains various values, including a list of available tiles it can choose from.
 
-1. [Initialize the rule set](#1.-initialize-the-rule-set)
-2. [Find lowest Entropy tile object](#find-lowest-entropy-tile-object)
-3. [Tile Collapse](#3.-tile-collapse)
-4. [Constriction](#4.-constriction)
+1. [Initialize the rule set](#1-initialize-the-rule-set)
+2. [Find lowest Entropy tile object](#2-find-lowest-entropy-tile-object)
+3. [Tile Collapse](#3-tile-collapse)
+4. [Constriction](#4-constriction)
 
 ### 1. Initialize the rule set
 
@@ -118,10 +118,8 @@ private:
 ```
 
 ### 2. Find lowest Entropy tile object
-Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
-   - If the list is empty then all tiles have been collapsed and the generation is complete
-   - return true
 
+Title is self explanatory, follow the comments.
 ```c++
 std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 {
@@ -154,14 +152,45 @@ std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 }
 ```
 
+### 3. Tile Collapse
+
+To collapse a tile choose a random available tile choices left, you can use weights to influence the choice.
+Clear the available tiles list of the Tobj and add the chosen tile.
+Set the entropy to 0 because there are no more choices available.
+```c++
+void Tiles::Collapse()
+{
+    std::vector<int> tileWeightsVec;
+    //Loop through all available tiles and get their weights from the TileRuleSet
+    for (const auto& tile : m_AvailableTiles)
+    {
+        const auto it = TileRuleSet.find(tile);
+        
+        if (it != TileRuleSet.end())
+            tileWeightsVec.push_back(it->second.m_TileWeight);
+    }
+        
+    //Make a random choice based on the weights of the tiles by using a discrete distribution
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::discrete_distribution<> distribution(tileWeightsVec.begin(), tileWeightsVec.end());
+    const int randomWeightedChoice = distribution(gen);
+
+    //Use the random choice to set the tile
+    m_TileName = m_AvailableTiles[randomWeightedChoice];
+    m_AvailableTiles.clear(); 
+    m_AvailableTiles.push_back(m_TileName);
+    m_Entropy = 0;
+}
+```
 
 
 
-
+2.Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
+   - If the list is empty then all tiles have been collapsed and the generation is complete
+   - return true
 3. Choose a random Tobj from the list and Collapse it
-   - Choose a random tile from the available tile choices left (you can use weights to influence the choice)
-   - Clear the available tiles list of the Tobj and add the chosen tile
-   - Set the entropy to 0
+  
 4. Create a stack and add the collapsed Tobj to the top
 5. Loop while the stack is not empty
    - Pop the top Tobj on the stack and store it
