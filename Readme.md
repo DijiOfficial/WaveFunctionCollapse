@@ -25,10 +25,59 @@ I have always been passionate about Algorithms, Math, Physics and Video Games an
 ![quick gif of the project in effect](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/Project1Demo.gif)
 
 ## Algorithm
-In the following paragraph the terms "tile" and "module" are interchangeable. A 'tile' refers to a 2D image with dimensions Width x Height, while a 'module' refers to a 3D box with dimensions Width x Height x Depth containing a 3D asset. It's important to note that they don't necessarily need to be square or cubic, as long as the rule set prohibits overlapping tiles or modules. For the 2D version of this algorithm, you can decompose a Width x Height tile into multiple smaller square tiles, completing the rule set with these subset tiles. To avoid confusion, I will refer to Tile objects as 'Tobj,' distinguishing them from individual tiles. Tobj contains various values, including a list of available tiles it can choose from.
+In the following paragraphs the terms "tile" and "module" are interchangeable. A 'tile' refers to a 2D image with dimensions Width x Height, while a 'module' refers to a 3D box with dimensions Width x Height x Depth containing a 3D asset. It's important to note that they don't necessarily need to be square or cubic, as long as the rule set prohibits overlapping tiles or modules. For the 2D version of this algorithm, you can decompose a Width x Height tile into multiple smaller square tiles, completing the rule set with these subset tiles. To avoid confusion, I will refer to Tile objects as 'Tobj,' distinguishing them from individual tiles. Tobj contains various values, including a list of available tiles it can choose from.
 
-To get started with this algorithm, you will need to do an initial setup based on the specific variation you are working on. For Project1, begin by defining all the tiles you will be using and establish the rule set that will dictate how the tiles connect to each other — in other words, specify which tile can connect to which. Create an array of Tile objects (Tobj) containing a list of available tiles and an entropy value. By default, the entropy will be set to the total number of tiles. Entropy represents the number of available tiles left to choose from after the constriction process (more on that later). Additionally, provide each Tobj with links to its neighbors, which will simplify the code later. I assigned a set of directions (N-E-S-W) to each Tobj and later defined how each direction identifies its neighbors in the array. Finally, to initiate the Wave Function Collapse, follow this pseudo-code:
+1. Initialize the rule set
+2. Find lowest Entropy tile object
+3. Tile Collapse
+4. Constriction
 
+### 1. Initialize the rule set
+
+To get started with this algorithm, you will need to do an initial setup based on the specific variation you are working on. For [Project1](#project-1), begin by defining all the tiles you will be using and establish the rule set that will dictate how the tiles connect to each other — in other words, specify which tile can connect to which. Create an array of Tile objects (Tobj) containing a list of available tiles and an entropy value. By default, the entropy will be set to the total number of tiles. Entropy represents the number of available tiles left to choose from after the constriction process (more on that later). Additionally, provide each Tobj with links to its neighbors, which will simplify the code later. I assigned a set of directions (N-E-S-W) to each Tobj and later defined how each direction identifies its neighbors in the array.
+
+Here's the rule set for [Project1](#project-1) an extract from the [EnumClasses.h](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/EnumClasses.h), containing for every tile a set of possible type connections for every direction (neighbor) and weights.
+```cpp
+using TileNameToRulesMap = const std::map<TileName, TileInfo>;
+inline TileNameToRulesMap TileRuleSet
+{ 
+	{ TileName::TILE_GRASS,		   {{ GRASS, GRASS, GRASS, GRASS }			, 16	}}, 
+	{ TileName::TILE_WATER,		   {{ WATER, WATER, WATER, WATER }			, 4	}}, 
+	{ TileName::TILE_FOREST,	   {{ FOREST, FOREST, FOREST, FOREST }		, 5	}}, 
+	{ TileName::TILE_COASTN,	   {{ GRASS, COAST_N, WATER, COAST_N }		, 5	}}, 
+	{ TileName::TILE_COASTE,	   {{ COAST_E, GRASS, COAST_E, WATER }		, 5	}}, 
+	{ TileName::TILE_COASTS,	   {{ WATER, COAST_S, GRASS, COAST_S }		, 5	}}, 
+	{ TileName::TILE_COASTW,	   {{ COAST_W, WATER, COAST_W, GRASS }		, 5	}}, 
+	{ TileName::TILE_COASTNE,	   {{ GRASS, GRASS, COAST_E, COAST_N }		, 5	}}, 
+	{ TileName::TILE_COASTSE,	   {{ COAST_E, GRASS, GRASS, COAST_S }		, 5	}}, 
+	{ TileName::TILE_COASTSW,	   {{ COAST_W, COAST_S, GRASS, GRASS }		, 5	}}, 
+	{ TileName::TILE_COASTNW,	   {{ GRASS, COAST_N, COAST_W, GRASS }		, 5	}}, 
+	{ TileName::TILE_COASTNE2,	   {{ COAST_E, COAST_N, WATER, WATER }		, 2	}}, 
+	{ TileName::TILE_COASTSE2,	   {{ WATER, COAST_S, COAST_E, WATER }		, 2	}}, 
+	{ TileName::TILE_COASTSW2,	   {{ WATER, WATER, COAST_W, COAST_S }		, 2	}}, 
+	{ TileName::TILE_COASTNW2,	   {{ COAST_W, WATER, WATER, COAST_N }		, 2	}}, 
+	{ TileName::TILE_ROCKN,		   {{ ROCK, ROCK_N, GRASS, ROCK_N }		   , 4	}}, 
+	{ TileName::TILE_ROCKE,		   {{ ROCK_E, ROCK, ROCK_E, GRASS }		   , 4	}}, 
+	{ TileName::TILE_ROCKS,		   {{ GRASS, ROCK_S, ROCK, ROCK_S }		   , 4	}}, 
+	{ TileName::TILE_ROCKW,		   {{ ROCK_W, GRASS, ROCK_W, ROCK }		   , 4	}}, 
+	{ TileName::TILE_ROCKNE,	   {{ ROCK_E, ROCK_N, GRASS, GRASS }		, 4	}}, 
+	{ TileName::TILE_ROCKSE,	   {{ GRASS, ROCK_S, ROCK_E, GRASS }		, 4	}}, 
+	{ TileName::TILE_ROCKSW,	   {{ GRASS, GRASS, ROCK_W, ROCK_S }		, 4	}}, 
+	{ TileName::TILE_ROCKNW,	   {{ ROCK_W, GRASS, GRASS, ROCK_N }		, 4	}}, 
+	{ TileName::TILE_FORESTN,	   {{ FOREST, FOREST_N, GRASS, FOREST_N }	, 4	}}, 
+	{ TileName::TILE_FORESTE,	   {{ FOREST_E, FOREST, FOREST_E, GRASS }	, 4	}}, 
+	{ TileName::TILE_FORESTS,	   {{ GRASS, FOREST_S, FOREST, FOREST_S }	, 4	}}, 
+	{ TileName::TILE_FORESTW,	   {{ FOREST_W, GRASS, FOREST_W, FOREST }	, 4	}}, 
+	{ TileName::TILE_FORESTNE,	   {{ FOREST_E, FOREST_N, GRASS, GRASS }	, 4	}}, 
+	{ TileName::TILE_FORESTSE,	   {{ GRASS, FOREST_S, FOREST_E, GRASS }	, 4	}}, 
+	{ TileName::TILE_FORESTSW,	   {{ GRASS, GRASS, FOREST_W, FOREST_S }	, 4	}}, 
+	{ TileName::TILE_FORESTNW,	   {{ FOREST_W, GRASS, GRASS, FOREST_N }	, 4	}}, 
+	{ TileName::TILE_FORESTNE2,	{{ FOREST, FOREST, FOREST_E, FOREST_N }, 2	}}, 
+	{ TileName::TILE_FORESTSE2,	{{ FOREST_E, FOREST, FOREST, FOREST_S }, 2	}}, 
+	{ TileName::TILE_FORESTSW2,	{{ FOREST_W, FOREST_S, FOREST, FOREST }, 2	}}, 
+	{ TileName::TILE_FORESTNW2,	{{ FOREST, FOREST_N, FOREST_W, FOREST }, 2	}}
+};
+```
 1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
    - If the list is empty then all tiles have been collapsed and the generation is complete
    - return true
