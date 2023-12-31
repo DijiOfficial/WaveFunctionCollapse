@@ -313,9 +313,9 @@ You can now call the function every game tick or while the function return false
 To explain the complexity time of the algorithm I will quote [abetusk](https://gamedev.stackexchange.com/users/126593/abetusk) from his [forum post on stackexchange](https://gamedev.stackexchange.com/questions/201794/how-fast-or-scalable-is-wave-function-collapse): 
 "First, let's define N to be the number of cells and T to be the number of tiles. For example, Pac-Man has about 36 unique tiles (T=36) and has about 28×31 cells (N=868).
 
-In general, the upper bound is O(T2⋅N2). In practice this probably can be reduced down to O(T2⋅N).
+In general, the upper bound is O(T<sup>2</sup>⋅N<sup>2</sup>). In practice this probably can be reduced down to O(T<sup>2</sup>⋅N).
 
-We can't really do better than O(T⋅N) because just to traverse all cells and remove all non-chosen tiles, we're already at T⋅N. To see why it might be O(T2⋅N2), we might be required to traverse the whole grid after a single tile removal to see if any tiles need to be removed from the given constraints.
+We can't really do better than O(T⋅N) because just to traverse all cells and remove all non-chosen tiles, we're already at T⋅N. To see why it might be O(T<sup>2</sup>⋅N<sup>2</sup>), we might be required to traverse the whole grid after a single tile removal to see if any tiles need to be removed from the given constraints.
 
 In practice, we only have pairwise neighbor tile/cell constraints and so the "impact" of a single tile removal can be localized to only cells around impacted site."
 
