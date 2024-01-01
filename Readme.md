@@ -321,6 +321,13 @@ In practice, we only have pairwise neighbor tile/cell constraints and so the "im
 
 ## UI
 
+- Start/Stop button: Toggles the generation on and off.
+- Toggle generate on click: When enabled, will allow you to click on any uncollapsed tile to collapse it.
+- Complete button: Will call the Wave Function Collapse until the generation is complete without rendering debug options.
+- Reset: Well it... resets.
+- Resize and Width x Height Textboxes: specify the size you want in the textboxes. Left = Width and Right = Height. Tiles are 16x16 pixels so each value represents 16 pixels. So 10x10 represents 160x160 pixels. When you have chose the size you want press the "Resize" button. It will call the "reset" function, resize and recenter the window as well as realign the UI.
+- Speed slider: Doesn't slide properly but you can click where you want on the slider to specify the framerate of the app, which will slow down/accelerate the generation.
+  
 ## Background:
 
 - It's history and development in gaming and possibly other fields?
