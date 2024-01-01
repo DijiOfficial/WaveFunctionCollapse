@@ -331,13 +331,10 @@ In practice, we only have pairwise neighbor tile/cell constraints and so the "im
 Here's a Quick Demo of the features:
 
 ![UIDemoGIF](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/UIDemo.gif)
-## Background:
-
-- It's history and development in gaming and possibly other fields?
   
 ## Uses and Implementations
 
-- List of uses of the algorithm
+I originally planned on making an introduction and history section on algorithms in video games and follow up with their [Uses and Implementations](#uses-and-implementations). Due to a lack of time and relevance for the scope of the lesson, I removed both sections. Instead, I will link to [mxgmn](https://github.com/mxgmn/WaveFunctionCollapse/commits?author=mxgmn)'s [Notable ports, forks and spinoffs](https://github.com/mxgmn/WaveFunctionCollapse/tree/master?tab=readme-ov-file#notable-ports-forks-and-spinoffs)' GitHub section on his [Wave Function Collapse Repo](https://github.com/mxgmn/WaveFunctionCollapse), which is kept up to date and already quite complete.
 
 ## Conclusion
 
