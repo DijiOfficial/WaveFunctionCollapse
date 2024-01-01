@@ -135,9 +135,7 @@
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameWinMain.cpp" />
     <ClCompile Include="Slider.cpp" />
-    <ClCompile Include="structs.cpp" />
     <ClCompile Include="Tiles.cpp" />
-    <ClCompile Include="Vector2f.cpp" />
     <ClCompile Include="WaveFunctionCollapse.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,10 +145,8 @@
     <ClInclude Include="GameWinMain.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Slider.h" />
-    <ClInclude Include="structs.h" />
     <ClInclude Include="EnumClasses.h" />
     <ClInclude Include="Tiles.h" />
-    <ClInclude Include="Vector2f.h" />
     <ClInclude Include="WaveFunctionCollapse.h" />
   </ItemGroup>
   <ItemGroup>

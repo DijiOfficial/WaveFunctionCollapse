@@ -30,12 +30,6 @@
     <ClCompile Include="GameWinMain.cpp">
       <Filter>Engine Files</Filter>
     </ClCompile>
-    <ClCompile Include="structs.cpp">
-      <Filter>Engine Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector2f.cpp">
-      <Filter>Engine Files</Filter>
-    </ClCompile>
     <ClCompile Include="Slider.cpp">
       <Filter>Game Files\SubClass</Filter>
     </ClCompile>
@@ -61,12 +55,6 @@
     </ClInclude>
     <ClInclude Include="WaveFunctionCollapse.h">
       <Filter>Game Files</Filter>
-    </ClInclude>
-    <ClInclude Include="structs.h">
-      <Filter>Engine Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector2f.h">
-      <Filter>Engine Files</Filter>
     </ClInclude>
     <ClInclude Include="EnumClasses.h">
       <Filter>Game Files\SubClass</Filter>
