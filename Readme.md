@@ -119,7 +119,7 @@ private:
 
 ### 2. Find lowest Entropy tile object
 
-Title is self explanatory, follow the comments.
+Loop through all the tiles to find the ones with the lowest possible entropy.
 ```c++
 std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 {
@@ -183,7 +183,7 @@ void Tiles::Collapse()
     m_Entropy = 0;
 }
 ```
-
+![CollapseDemoGIF](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/CollapseDemo.gif)
 ### 4. Constriction
 
 The constriction may not be the hardest step but it definitely is the hardest one to understand, in essence it is simply telling all neighboring Tobj of the one that was collapsed which tiles are now unavailable and continuing this processs until there are no more tile to constrict. It goes as follow:
@@ -240,7 +240,7 @@ bool Tiles::Constrain(std::vector<TileName>& availableTilesVec, const Direction&
     return wasReduced;
 }
 ```
-
+![ConstrictionDemoGIF](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/ConstrictionDemo.gif)
 ### Complete function
 
 1. Get a list of the lowest entropy Tobj (ignore tiles with entropy of value 0)
@@ -327,7 +327,10 @@ In practice, we only have pairwise neighbor tile/cell constraints and so the "im
 - Reset: Well it... resets.
 - Resize and Width x Height Textboxes: specify the size you want in the textboxes. Left = Width and Right = Height. Tiles are 16x16 pixels so each value represents 16 pixels. So 10x10 represents 160x160 pixels. When you have chose the size you want press the "Resize" button. It will call the "reset" function, resize and recenter the window as well as realign the UI.
 - Speed slider: Doesn't slide properly but you can click where you want on the slider to specify the framerate of the app, which will slow down/accelerate the generation.
-  
+
+Here's a Quick Demo of the features:
+
+![UIDemoGIF](https://github.com/Howest-DAE-GD/gpp-researchtopic-DijiOfficial/blob/master/WaveFunctionCollapse/Assets/UIDemo.gif)
 ## Background:
 
 - It's history and development in gaming and possibly other fields?
