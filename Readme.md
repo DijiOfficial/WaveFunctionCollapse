@@ -346,4 +346,8 @@ In conclusion, I believe that, with some more work, this can very easily become 
 
 ## Sources
 
-- Link to all the sources used
+- [https://github.com/CodingQuest2023/Algorithms](https://github.com/CodingQuest2023/Algorithms)
+- [https://www.youtube.com/watch?v=qRtrj6Pua2A&](https://www.youtube.com/watch?v=qRtrj6Pua2A&)
+- [https://www.youtube.com/watch?v=2SuvO4Gi7uY&](https://www.youtube.com/watch?v=2SuvO4Gi7uY&)
+- [https://gamedev.stackexchange.com/questions/201794/how-fast-or-scalable-is-wave-function-collapse](https://gamedev.stackexchange.com/questions/201794/how-fast-or-scalable-is-wave-function-collapse)
+- [https://github.com/mxgmn/WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse)
