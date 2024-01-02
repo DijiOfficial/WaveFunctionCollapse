@@ -1,8 +1,15 @@
 # The Wave Function Collapse
 
+## Introduction
+
+The Wave Function Collapse originated from [Maxim Gumin](https://github.com/mxgmn) in 2016 on his [GitHub Repo](https://github.com/mxgmn/WaveFunctionCollapse) and has been used in a variety of ways, which you can check out [here](https://github.com/mxgmn/WaveFunctionCollapse?tab=readme-ov-file#notable-ports-forks-and-spinoffs).
+In his repo, Gumin describes the algorithm in extended detail and its different varieties. Unfortunately, I don't have the time to implement the three different varieties, so I will instead talk about two of them in this introduction and present the last one I reproduced in the rest of this document. All three varieties share the same algorithm. However, the sampling method differs. So what is the Wave Function Collapse?
+The Wave Function Collapse, or WFC for short, is a procedural map/dungeon generation algorithm that will generate maps based on an input. There are two different ways to sample the input, hence the variations. But I mentioned three variations, so is there a third sampling method? This algorithm is not only defined in 2D but also in 3D where the sampling method will be similar to its 2D Tile-Based sampling counterpart but will use "modules" instead of "Tiles". The 2D Tile-Based sampling and 3D variation work in a similar way, the 3D variation simply adds another dimension to the mathematical aspect of the algorithm.
+I will describe this "Tile-Based sampling" further in my project. To conclude this introduction, I will describe the other sampling method I mentioned before, Bitmap or Texture sampling. Texture sampling, as the name suggests, samples Tiles from a texture given a number N. This number N will then be used to sample NxN pixels from the input Texture and create all possible NxN tiles from the Texture. The Tiles will be compared slightly differently than the Tile-Based generation, as the Tile-Based will actually pre-define which tile can connect to which other tile. The texture sampling will instead compare the pixels on the border to check for compatibility with other tiles."
+
 ### The Project
 
-#### Project 1
+#### Tile-Based variety
 The First part of this project is a 2D Dungeon/Texture/Terrain Generator. It has a variety of [Uses and Implementations](#uses-and-implementations).
 However its main usage is Terrain Generation.
 (May implement UI later).
