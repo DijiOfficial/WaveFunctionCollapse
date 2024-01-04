@@ -14,6 +14,9 @@
 #include <vld.h>
 #include <string>
 #include "Slider.h"
+#include <algorithm>
+#include <random>
+
 //-----------------------------------------------------------------
 // WaveFunctionCollapse methods																				
 //-----------------------------------------------------------------
@@ -27,6 +30,11 @@ WaveFunctionCollapse::~WaveFunctionCollapse()
 {
 	// nothing to destroy
 }
+
+bool CompareSmallesEntropyBiggerThan0(const Tiles* lhs, const Tiles* rhs)
+{
+	return lhs->GetEntropy() > 0 && (rhs->GetEntropy() == 0 || lhs->GetEntropy() < rhs->GetEntropy());
+};
 
 void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)			
 {
@@ -203,29 +211,16 @@ void WaveFunctionCollapse::CallAction(Caller* callerPtr)
 
 std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 {
-	//Set lowest entropy to the highest possible value and create an empty list of tiles
-	int tilesLowestEntropy = TileRuleSet.size();
-	std::vector<Tiles*> tileList;
+	auto tileIter = std::ranges::min_element(m_TilesPtrVec, CompareSmallesEntropyBiggerThan0);
 
-	//Loop through all tiles
-	for (const auto& Tile : m_TilesPtrVec)
+	std::vector<Tiles*> tileList{};
+	if ((*tileIter))
 	{
-		const int tileEntropy = Tile->GetEntropy();
-		
-		//If the tile has no entropy, skip it because it is already collapsed
-		if (tileEntropy <= 0)
-			continue;
-
-		//Reset the list of tiles if a tile with a lower entropy is found
-		if (tileEntropy < tilesLowestEntropy)
-		{
-			tileList.clear();
-			tilesLowestEntropy = tileEntropy;
-		}
-		
-		//Add the tile to the list of tiles with the lowest entropy
-		if (tileEntropy == tilesLowestEntropy)
-			tileList.push_back(Tile);
+		std::copy_if(m_TilesPtrVec.begin(), m_TilesPtrVec.end(), std::back_inserter(tileList),
+			[&tileIter](const Tiles* tile)
+			{
+				return tile->GetEntropy() == (*tileIter)->GetEntropy();
+			});
 	}
 
 	return tileList;
@@ -233,15 +228,9 @@ std::vector<Tiles*> WaveFunctionCollapse::GetLowestEntropyTiles()
 
 int WaveFunctionCollapse::GetLowestEntropy() const
 {
-	int lowestEntropy = TileRuleSet.size();
-	for (const auto& tile : m_TilesPtrVec)
-	{
-		const int tileEntropy = tile->GetEntropy();
-		if (tileEntropy > 0 and tileEntropy < lowestEntropy)
-			lowestEntropy = tileEntropy;
-	}
+	auto tileIter = std::min_element(begin(m_TilesPtrVec), end(m_TilesPtrVec), CompareSmallesEntropyBiggerThan0);
 
-	return lowestEntropy;
+	return (*tileIter)->GetEntropy();
 }
 
 bool WaveFunctionCollapse::CollapseFunctionAlgorithm(int x, int y, bool isClicked)
