@@ -3,11 +3,11 @@
 ## Introduction
 
 The Wave Function Collapse originated from [Maxim Gumin](https://github.com/mxgmn) in 2016 on his [GitHub Repo](https://github.com/mxgmn/WaveFunctionCollapse) and has been used in a variety of ways, which you can check out [here](https://github.com/mxgmn/WaveFunctionCollapse?tab=readme-ov-file#notable-ports-forks-and-spinoffs).
-In his repo, Gumin describes the algorithm in extended detail and its different varieties. Unfortunately, I don't have the time to implement the three different varieties, so I will instead talk about two of them in this introduction and present the last one I reproduced in the rest of this document. All three varieties share the same algorithm. However, the sampling method differs. So what is the Wave Function Collapse?
+In his repo, Gumin describes the algorithm in extended detail and its different varieties. I will talk about two of them in this introduction and present the last one I reproduced in more details in the rest of this document. All three varieties share the same algorithm. However, the sampling method differs. So what is the Wave Function Collapse?
 
-The Wave Function Collapse, or WFC for short, is a procedural map/dungeon generation algorithm that will generate maps based on an input. There are two different ways to sample the input, hence the variations. But I mentioned three variations, so is there a third sampling method? This algorithm is not only defined in 2D but also in 3D where the sampling method will be similar to its 2D Tile-Based sampling counterpart but will use "modules" instead of "Tiles". The 2D Tile-Based sampling and 3D variation work in a similar way, the 3D variation simply adds another dimension to the mathematical aspect of the algorithm.
+The Wave Function Collapse, or WFC for short, is a procedural map/dungeon generation algorithm that will generate maps based on a given sampling input. There are two different ways to sample the input, Tile-Based and Texture sampling. The third and last variation is defined in 3D. The 2D Tile-Based sampling and 3D variation work in a similar way, the 3D variation simply adds another dimension to the mathematical aspect of the algorithm.
 
-I will describe this "Tile-Based sampling" further in my project. To conclude this introduction, I will describe the other sampling method I mentioned before, Bitmap or Texture sampling. Texture sampling, as the name suggests, samples Tiles from a texture given a number N. This number N will then be used to sample NxN pixels from the input Texture and create all possible NxN tiles from the Texture. The Tiles will be compared slightly differently than the Tile-Based generation, as the Tile-Based will actually pre-define which tile can connect to which other tile. The texture sampling will instead compare the pixels on the border to check for compatibility with other tiles.
+I will elaborate this "Tile-Based sampling" further in my project. To conclude this introduction, I will describe the other sampling method I mentioned before, Bitmap or Texture sampling. Texture sampling, as the name suggests, samples Tiles from a texture given a number N. This number N will then be used to sample NxN pixels from the input Texture and create all possible NxN tiles from the Texture. The Tiles will be compared slightly differently than the Tile-Based generation, as the Tile-Based will actually pre-define which tile can connect to which other tile. The texture sampling will instead compare the pixels on the border to check for compatibility with other tiles.
 
 ### The Project
 
@@ -346,7 +346,7 @@ Here's a Quick Demo of the features:
   
 ## Uses and Implementations
 
-I originally planned on making an introduction and history section on algorithms in video games and follow up with their [Uses and Implementations](#uses-and-implementations). Due to a lack of time and relevance for the scope of the lesson, I removed both sections. Instead, I will link to [mxgmn](https://github.com/mxgmn/WaveFunctionCollapse/commits?author=mxgmn)'s [Notable ports, forks and spinoffs](https://github.com/mxgmn/WaveFunctionCollapse/tree/master?tab=readme-ov-file#notable-ports-forks-and-spinoffs)' GitHub section on his [Wave Function Collapse Repo](https://github.com/mxgmn/WaveFunctionCollapse), which is kept up to date and already quite complete.
+For this section I will refer to [mxgmn](https://github.com/mxgmn/WaveFunctionCollapse/commits?author=mxgmn)'s [Notable ports, forks and spinoffs](https://github.com/mxgmn/WaveFunctionCollapse/tree/master?tab=readme-ov-file#notable-ports-forks-and-spinoffs)' GitHub section on his [Wave Function Collapse Repo](https://github.com/mxgmn/WaveFunctionCollapse). As it is kept up to date and already quite complete.
 
 ## Conclusion
 
