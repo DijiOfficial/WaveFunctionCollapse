@@ -29,7 +29,7 @@ public:
 private:
 	std::map<const Direction, Tiles*> m_NeighborsMap;
 	std::vector<TileName> m_AvailableTiles{};
-	int m_Entropy{ 35 };
+	int m_Entropy{ 36 };
 
 	TileName m_TileName;
 };

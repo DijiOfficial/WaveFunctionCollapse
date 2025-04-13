@@ -43,7 +43,7 @@ void WaveFunctionCollapse::Initialize(HINSTANCE hInstance)
     GAME_ENGINE->SetFrameRate(m_FPS);
 	
 	// Load the bitmap
-	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles4.bmp"));
+	m_BmpTileTexturePtr = new Bitmap(_T("Assets/Tiles.bmp"));
 }
 
 void WaveFunctionCollapse::Start(bool reset)
@@ -128,8 +128,8 @@ void WaveFunctionCollapse::Paint(RECT rect)
 		else // If tile is chosen, paint it with its texture
 		{
 			// If it's a forest tile, paint a grass tile underneath it
-			if (static_cast<int>(tileName) >= static_cast<int>(TileName::TILE_FORESTN))
-				GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, { 0, 0, TILE_SIZE, TILE_SIZE });
+			//if (static_cast<int>(tileName) >= static_cast<int>(TileName::TILE_FORESTN))
+			//	GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, { 0, 0, TILE_SIZE, TILE_SIZE });
 	
 			GAME_ENGINE->DrawBitmap(m_BmpTileTexturePtr, posX, posY, srcRect);
 		}
