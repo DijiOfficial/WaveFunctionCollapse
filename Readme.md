@@ -26,9 +26,7 @@ Finally we make a ```struct TileInfo``` containing a ```vector``` of ```TileType
 This version, also a 2D generator, will solve the issue of the complex initial setup of the map and enums by sampling everything from a Bitmap/Texture, trading initialization complexity for Texture and Pixels comparaison.
 
 #### 3D generation
-(not yet implemented)
-
-This version, similar to the [Tile-Based sampling](#tile-based-sampling) Generates 3D terrain.
+This version, similar to the [Tile-Based sampling](#tile-based-sampling) Generates 3D terrain. The logic itself is also almost identical, only needing to consider a third dimension for it. For this proof of concept I made a quick demo in Unity, with one difference to the 2D Tile sampling we get a list of "Sockets" a Socket is simply information that can be used to determine which other "Sockets" are compatible. This is similar to defining the availables neighbors we simply have to tell which Sockets are compatible with each other.
 
 ### Motivations
 I have always been passionate about Algorithms, Math, Physics and Video Games and how they intersect each other. And the passion for this project started when I first saw [this video](https://www.youtube.com/watch?v=2SuvO4Gi7uY&) by [Martin Donald](https://www.youtube.com/@MartinDonald) back in 2020. I found the explanation absolutely fantastic and it scratched just the right itch by combining Algorithms, Games, Infinite Generation, Exploration and Possibilites as well as the potential for infinite replayability. One of my very first "complete" project [MazeRunner](https://github.com/DijiOfficial/2D-Grid-Game) also features an infinite amount of levels by generating new ones every time. So I thought I would explore what [The Wave Function Collapse](#the-wave-function-collapse) had to offer and it did not disappoint as well as being slighlty harder to implement than I orginally thought it would be making it all the more fun and intersting.
