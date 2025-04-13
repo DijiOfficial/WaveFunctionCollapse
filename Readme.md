@@ -348,9 +348,12 @@ For this section I will refer to [mxgmn](https://github.com/mxgmn/WaveFunctionCo
 
 ## Conclusion
 
-Working on this project was a blast. It has been a while since I've been so passionate about a project that I could keep working on it day after day. I'm very satisfied with the results and will have to call it there, as I could keep working on it for much longer, likely because of my interests in generation algorithms and randomness. In fact I will definitely be comming back to implement the [Texture Sampling](#texture-sampling) and [3D Generation](#3D-generation) later!
+Working on this project was a blast. It has been a while since I've been so passionate about a project that I could keep working on it day after day. I'm very satisfied with the results and will have to call it there, as I could keep working on it for much longer, likely because of my interests in generation algorithms and randomness.
 
 There are likely some optimizations left, notably in the Constriction algorithm where tiles will check neighbors that have already been checked and have no possible constriction left. For the drawing function, every tile is redrawn every tick regardless of change. Modifying the redraw function to only redraw affected tiles would significantly improve its "Debug" generation, as you have seen that discarding the draw function every tick allows for almost instant generation. There are also some missing UI elements that I wish I could have added, as well as making the speed slider actually slide. An addition to allow the user to select which tile they want to add would allow fixing certain elements of the map. As the first project is compatible with tile fixing, it would allow fixing paths/mountains/lakes/rivers, etc., in places you want. The addition of weight customization within the application to allow for many more customizations and control over the generation. Finally, adding the ability to reset specific regions you want to redraw gives the user even more control over the generation.
+
+As for the 3D Unity version, it served more as a proof of concept. It’s lacking in optimizations and features but works as intended. With the knowledge I gained from this project, I can confidently say that I could reproduce it in a professional environment for a proper game.
+It is my belief that this algorithm has the potential to add an almost infinite amount of content to a game, making each playthrough a unique experience. Imagine your favorite single-player game with a new map generated every time you replay it!
 
 In conclusion, I believe that, with some more work, this can very easily become a very useful tool for the creation and design of levels and dungeons.
 
