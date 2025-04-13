@@ -365,3 +365,4 @@ In conclusion, I believe that, with some more work, this can very easily become 
 - [https://gamedev.stackexchange.com/questions/201794/how-fast-or-scalable-is-wave-function-collapse](https://gamedev.stackexchange.com/questions/201794/how-fast-or-scalable-is-wave-function-collapse)
 - [https://github.com/mxgmn/WaveFunctionCollapse](https://github.com/mxgmn/WaveFunctionCollapse)
 - [https://www.youtube.com/watch?v=AdCgi9E90jw&t](https://www.youtube.com/watch?v=AdCgi9E90jw&t)
+- [https://assetstore.unity.com/packages/3d/environments/dungeons/ultimate-low-poly-dungeon-143535](https://assetstore.unity.com/packages/3d/environments/dungeons/ultimate-low-poly-dungeon-143535)
