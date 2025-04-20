@@ -34,6 +34,8 @@ I have always been passionate about Algorithms, Math, Physics and Video Games an
 ### Final result
 ![quick gif of the project in effect](https://github.com/DijiOfficial/WaveFunctionCollapse/blob/master/WaveFunctionCollapse/Assets/Project1Demo.gif)
 
+https://github.com/user-attachments/assets/bc4a672a-1a9e-4c26-9375-8679f9a00b77
+
 ## Algorithm
 In the following paragraphs the terms "tile" and "module" are interchangeable. A 'tile' refers to a 2D image with dimensions Width x Height, while a 'module' refers to a 3D box with dimensions Width x Height x Depth containing a 3D asset. It's important to note that they don't necessarily need to be square or cubic, as long as the rule set prohibits overlapping tiles or modules. For the 2D version of this algorithm, you can decompose a Width x Height tile into multiple smaller square tiles, completing the rule set with these subset tiles. To avoid confusion, I will refer to Tile objects as 'Tobj,' distinguishing them from individual tiles. Tobj contains various values, including a list of available tiles it can choose from.
 
